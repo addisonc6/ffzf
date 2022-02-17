@@ -111,8 +111,8 @@ fn jaro_distance(word1: &str, word2: &str) -> f64 {
         let mut j = i32::max(i - max_dist, 0);
         while j < i32::min(i + max_dist + 1, m) {
             if word1_chars[i as usize] == word2_chars[j as usize] && hash_word2[j as usize] == 0 {
-                hash_word1[i as usize] += 1;
-                hash_word2[j as usize] += 1;
+                hash_word1[i as usize] = 1;
+                hash_word2[j as usize] = 1;
                 matches += 1;
                 break;
             }
@@ -130,12 +130,14 @@ fn jaro_distance(word1: &str, word2: &str) -> f64 {
                 point += 1;
             }
             if word1_chars[i as usize] != word2_chars[point as usize] {
+                point += 1;
                 transpositions += 1;
+            } else {
+                point += 1;
             }
-            point += 1;
         }
+        transpositions /= 2;
     }
-    transpositions /= 2;
     let jaro_distance = (matches as f64 / n as f64
         + matches as f64 / m as f64
         + (matches - transpositions) as f64 / matches as f64)
@@ -176,7 +178,8 @@ fn hamming_distance(word1: &str, word2: &str) -> f64 {
             distance += 1;
         }
     }
-    distance as f64
+    distance as f64 + usize::max(word1.len(), word2.len()) as f64
+        - usize::min(word1.len(), word2.len()) as f64
 }
 
 /// A Python module implemented in Rust.
@@ -193,6 +196,8 @@ fn ffzf(_py: Python, m: &PyModule) -> PyResult<()> {
 
 #[cfg(test)]
 mod tests {
+    use float_cmp::approx_eq;
+
     use super::*;
     #[test]
     fn test_levenshtein_distance() {
@@ -214,16 +219,94 @@ mod tests {
 
     #[test]
     fn test_jaro_distance() {
-        todo!();
+        assert!(approx_eq!(
+            f64,
+            jaro_distance("subprime", "primers"),
+            0.779762,
+            epsilon = 0.001
+        ));
+        assert!(approx_eq!(
+            f64,
+            jaro_distance("SubPRIME", "Primers"),
+            0.779762,
+            epsilon = 0.001
+        ));
+        assert!(approx_eq!(
+            f64,
+            jaro_distance("SUBprime", "prImeRs"),
+            0.779762,
+            epsilon = 0.001
+        ));
+        assert!(approx_eq!(
+            f64,
+            jaro_distance("codify", "reify"),
+            0.7,
+            epsilon = 0.001
+        ));
+        assert!(approx_eq!(
+            f64,
+            jaro_distance("absolute", "resolute"),
+            0.833333,
+            epsilon = 0.001
+        ));
+        assert!(approx_eq!(
+            f64,
+            jaro_distance("anchors", "bank"),
+            0.595238,
+            epsilon = 0.001
+        ));
+        assert!(approx_eq!(
+            f64,
+            jaro_distance("out", "regaining"),
+            0.0,
+            epsilon = 0.001
+        ));
     }
 
     #[test]
-    fn test_jaro_winkel_distance() {
-        todo!();
+    fn test_jaro_winkler_distance() {
+        assert!(approx_eq!(
+            f64,
+            jaro_winkler_distance("apples", "oranges"),
+            0.642857,
+            epsilon = 0.001
+        ));
+        assert!(approx_eq!(
+            f64,
+            jaro_winkler_distance("becoming", "trip"),
+            0.458333,
+            epsilon = 0.001
+        ));
+        assert!(approx_eq!(
+            f64,
+            jaro_winkler_distance("developers", "investment"),
+            0.532682,
+            epsilon = 0.001
+        ));
+        assert!(approx_eq!(
+            f64,
+            jaro_winkler_distance("trip", "drive"),
+            0.633333,
+            epsilon = 0.001
+        ));
+        assert!(approx_eq!(
+            f64,
+            jaro_winkler_distance("over", "out"),
+            0.527778,
+            epsilon = 0.001
+        ));
     }
 
     #[test]
     fn test_hamming_distance() {
-        todo!();
+        assert_eq!(hamming_distance("apples", ""), 6.0);
+        assert_eq!(hamming_distance("", ""), 0.0);
+        assert_eq!(hamming_distance("a", ""), 1.0);
+        assert_eq!(hamming_distance("", "a"), 1.0);
+        assert_eq!(hamming_distance("batter", "bat"), 3.0); 
+        assert_eq!(hamming_distance("ask", "mike"), 3.0);
+        assert_eq!(hamming_distance("ask", "ask"), 0.0);
+        assert_eq!(hamming_distance("ask", "asked"), 2.0);
+        assert_eq!(hamming_distance("bask", "asked"), 5.0);
     }
 }
