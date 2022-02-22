@@ -13,11 +13,11 @@ pub fn closest_string_matching(target: &str, options: Vec<&str>, algorithm: &str
     };
     let mut score = f64::MAX;
     let mut best = "";
-    let scored_options: Vec<(f64, &&str)> = options
+    let scores: Vec<(f64, &&str)> = options
         .par_iter()
         .map(|option| (scorer(target, option), option))
         .collect::<Vec<_>>();
-    for (s, option) in scored_options {
+    for (s, option) in scores {
         if s < score {
             score = s;
             best = option;
@@ -40,15 +40,14 @@ pub fn n_closest_string_matching(
         "LEVENSHTEIN" => levenshtein_distance,
         _ => panic!("Invalid Algorithm"),
     };
-    let mut scores = Vec::new();
-    for option in options {
-        let distance = scorer(option, target);
-        scores.push((option.to_owned(), distance));
-    }
+    let mut scores = options
+        .par_iter()
+        .map(|option| (option, scorer(target, option)))
+        .collect::<Vec<_>>();
     scores.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
-    let mut best = Vec::new();
+    let mut best: Vec<String> = Vec::new();
     for (option, _) in scores.iter().take(n) {
-        best.push(option.to_owned());
+        best.push(String::from(**option));
     }
     return best;
 }
@@ -96,8 +95,8 @@ pub fn jaro_distance(word1: &str, word2: &str) -> f64 {
     if word1 == word2 {
         return 1.0;
     }
-    let n = word1.len() as i32;
-    let m = word2.len() as i32;
+    let n = word1.len();
+    let m = word2.len();
     let word1_chars = word1
         .chars()
         .map(|c| c.to_ascii_uppercase())
@@ -106,15 +105,15 @@ pub fn jaro_distance(word1: &str, word2: &str) -> f64 {
         .chars()
         .map(|c| c.to_ascii_uppercase())
         .collect::<Vec<char>>();
-    let max_dist: i32 = (i32::max(m, n) / 2) - 1;
+    let max_dist: i32 = (i32::max(m as i32, n as i32) / 2) - 1;
     let mut matches = 0;
-    let mut hash_word1 = vec![0; n as usize];
-    let mut hash_word2 = vec![0; m as usize];
+    let mut hash_word1 = vec![0; n];
+    let mut hash_word2 = vec![0; m];
     for i in 0..n {
-        let mut j = i32::max(i - max_dist, 0);
-        while j < i32::min(i + max_dist + 1, m) {
-            if word1_chars[i as usize] == word2_chars[j as usize] && hash_word2[j as usize] == 0 {
-                hash_word1[i as usize] = 1;
+        let mut j = i32::max(i as i32 - max_dist, 0);
+        while j < i32::min(i as i32 + max_dist + 1, m as i32) {
+            if word1_chars[i] == word2_chars[j as usize] && hash_word2[j as usize] == 0 {
+                hash_word1[i] = 1;
                 hash_word2[j as usize] = 1;
                 matches += 1;
                 break;
@@ -128,11 +127,11 @@ pub fn jaro_distance(word1: &str, word2: &str) -> f64 {
     let mut transpositions = 0;
     let mut point = 0;
     for i in 0..n {
-        if hash_word1[i as usize] != 0 {
+        if hash_word1[i] != 0 {
             while hash_word2[point] == 0 {
                 point += 1;
             }
-            if word1_chars[i as usize] != word2_chars[point as usize] {
+            if word1_chars[i] != word2_chars[point as usize] {
                 point += 1;
                 transpositions += 1;
             } else {
