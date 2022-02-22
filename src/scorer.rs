@@ -1,4 +1,5 @@
 use pyo3::prelude::*;
+use rayon::prelude::*;
 use std::cmp::min;
 
 #[pyfunction(algorithm = "\"levenshtein\"")]
@@ -12,10 +13,13 @@ pub fn closest_string_matching(target: &str, options: Vec<&str>, algorithm: &str
     };
     let mut score = f64::MAX;
     let mut best = "";
-    for option in options {
-        let distance = scorer(option, target);
-        if distance < score {
-            score = distance;
+    let scored_options: Vec<(f64, &&str)> = options
+        .par_iter()
+        .map(|option| (scorer(target, option), option))
+        .collect::<Vec<_>>();
+    for (s, option) in scored_options {
+        if s < score {
+            score = s;
             best = option;
         }
     }

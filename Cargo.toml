@@ -11,3 +11,4 @@ crate-type = ["cdylib"]
 [dependencies]
 float-cmp = "0.9.0"
 pyo3 = { version = "0.15.1", features = ["extension-module"] }
+rayon = "1.5.1"
