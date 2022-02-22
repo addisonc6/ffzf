@@ -5,13 +5,20 @@ use pyo3::wrap_pyfunction;
 use scorer::*;
 
 #[pymodule]
-fn ffzf(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(levenshtein_distance, m)?)?;
-    m.add_function(wrap_pyfunction!(jaro_distance, m)?)?;
-    m.add_function(wrap_pyfunction!(jaro_winkler_distance, m)?)?;
-    m.add_function(wrap_pyfunction!(hamming_distance, m)?)?;
+fn ffzf(py: Python, m: &PyModule) -> PyResult<()> {
+    let scorers_module = PyModule::new(py, "scorers")?;
+    scorers_module.add_wrapped(wrap_pyfunction!(levenshtein_distance))?;
+    scorers_module.add_wrapped(wrap_pyfunction!(hamming_distance))?;
+    scorers_module.add_wrapped(wrap_pyfunction!(jaro_distance))?;
+    scorers_module.add_wrapped(wrap_pyfunction!(jaro_winkler_distance))?;
     m.add_function(wrap_pyfunction!(closest_string_matching, m)?)?;
     m.add_function(wrap_pyfunction!(n_closest_string_matching, m)?)?;
+    m.add_submodule(scorers_module)?;
+    
+    // work around for bug registering submdules (https://github.com/PyO3/pyo3/issues/759)
+    py.import("sys")?
+        .getattr("modules")?
+        .set_item("ffzf.scorers", scorers_module)?;
     Ok(())
 }
 

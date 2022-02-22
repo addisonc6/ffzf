@@ -23,7 +23,7 @@ pub fn closest_string_matching(target: &str, options: Vec<&str>, algorithm: &str
 }
 
 #[pyfunction(algorithm = "\"levenshtein\"")]
-fn n_closest_string_matching(
+pub fn n_closest_string_matching(
     target: &str,
     options: Vec<&str>,
     n: usize,
