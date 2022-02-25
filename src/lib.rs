@@ -29,18 +29,18 @@ mod tests {
     use super::*;
     #[test]
     fn test_levenshtein_distance() {
-        assert_eq!(levenshtein_distance("", ""), 0.0);
-        assert_eq!(levenshtein_distance("a", ""), 1.0);
-        assert_eq!(levenshtein_distance("", "a"), 1.0);
-        assert_eq!(levenshtein_distance("a", "a"), 0.0);
-        assert_eq!(levenshtein_distance("a", "b"), 1.0);
-        assert_eq!(levenshtein_distance("b", "a"), 1.0);
-        assert_eq!(levenshtein_distance("a", "ab"), 1.0);
-        assert_eq!(levenshtein_distance("ab", "a"), 1.0);
-        assert_eq!(levenshtein_distance("a", "A"), 0.0);
-        assert_eq!(levenshtein_distance("euphoria", "elation"), 7.0);
+        assert_eq!(levenshtein_distance("", "").unwrap(), 0.0);
+        assert_eq!(levenshtein_distance("a", "").unwrap(), 1.0);
+        assert_eq!(levenshtein_distance("", "a").unwrap(), 1.0);
+        assert_eq!(levenshtein_distance("a", "a").unwrap(), 0.0);
+        assert_eq!(levenshtein_distance("a", "b").unwrap(), 1.0);
+        assert_eq!(levenshtein_distance("b", "a").unwrap(), 1.0);
+        assert_eq!(levenshtein_distance("a", "ab").unwrap(), 1.0);
+        assert_eq!(levenshtein_distance("ab", "a").unwrap(), 1.0);
+        assert_eq!(levenshtein_distance("a", "A").unwrap(), 0.0);
+        assert_eq!(levenshtein_distance("euphoria", "elation").unwrap(), 7.0);
         assert_eq!(
-            levenshtein_distance("triangle", "abcdefghijklmnopqrstuvwxyz"),
+            levenshtein_distance("triangle", "abcdefghijklmnopqrstuvwxyz").unwrap(),
             24.0
         );
     }
@@ -49,43 +49,43 @@ mod tests {
     fn test_jaro_distance() {
         assert!(approx_eq!(
             f64,
-            jaro_distance("subprime", "primers"),
+            jaro_distance("subprime", "primers").unwrap(),
             0.779762,
             epsilon = 0.001
         ));
         assert!(approx_eq!(
             f64,
-            jaro_distance("SubPRIME", "Primers"),
+            jaro_distance("SubPRIME", "Primers").unwrap(),
             0.779762,
             epsilon = 0.001
         ));
         assert!(approx_eq!(
             f64,
-            jaro_distance("SUBprime", "prImeRs"),
+            jaro_distance("SUBprime", "prImeRs").unwrap(),
             0.779762,
             epsilon = 0.001
         ));
         assert!(approx_eq!(
             f64,
-            jaro_distance("codify", "reify"),
+            jaro_distance("codify", "reify").unwrap(),
             0.7,
             epsilon = 0.001
         ));
         assert!(approx_eq!(
             f64,
-            jaro_distance("absolute", "resolute"),
+            jaro_distance("absolute", "resolute").unwrap(),
             0.833333,
             epsilon = 0.001
         ));
         assert!(approx_eq!(
             f64,
-            jaro_distance("anchors", "bank"),
+            jaro_distance("anchors", "bank").unwrap(),
             0.595238,
             epsilon = 0.001
         ));
         assert!(approx_eq!(
             f64,
-            jaro_distance("out", "regaining"),
+            jaro_distance("out", "regaining").unwrap(),
             0.0,
             epsilon = 0.001
         ));
@@ -95,31 +95,31 @@ mod tests {
     fn test_jaro_winkler_distance() {
         assert!(approx_eq!(
             f64,
-            jaro_winkler_distance("apples", "oranges"),
+            jaro_winkler_distance("apples", "oranges").unwrap(),
             0.642857,
             epsilon = 0.001
         ));
         assert!(approx_eq!(
             f64,
-            jaro_winkler_distance("becoming", "trip"),
+            jaro_winkler_distance("becoming", "trip").unwrap(),
             0.458333,
             epsilon = 0.001
         ));
         assert!(approx_eq!(
             f64,
-            jaro_winkler_distance("developers", "investment"),
+            jaro_winkler_distance("developers", "investment").unwrap(),
             0.532682,
             epsilon = 0.001
         ));
         assert!(approx_eq!(
             f64,
-            jaro_winkler_distance("trip", "drive"),
+            jaro_winkler_distance("trip", "drive").unwrap(),
             0.633333,
             epsilon = 0.001
         ));
         assert!(approx_eq!(
             f64,
-            jaro_winkler_distance("over", "out"),
+            jaro_winkler_distance("over", "out").unwrap(),
             0.527778,
             epsilon = 0.001
         ));
@@ -127,14 +127,14 @@ mod tests {
 
     #[test]
     fn test_hamming_distance() {
-        assert_eq!(hamming_distance("apples", ""), 6.0);
-        assert_eq!(hamming_distance("", ""), 0.0);
-        assert_eq!(hamming_distance("a", ""), 1.0);
-        assert_eq!(hamming_distance("", "a"), 1.0);
-        assert_eq!(hamming_distance("batter", "bat"), 3.0); 
-        assert_eq!(hamming_distance("ask", "mike"), 3.0);
-        assert_eq!(hamming_distance("ask", "ask"), 0.0);
-        assert_eq!(hamming_distance("ask", "asked"), 2.0);
-        assert_eq!(hamming_distance("bask", "asked"), 5.0);
+        assert_eq!(hamming_distance("apples", "").unwrap(), 6.0);
+        assert_eq!(hamming_distance("", "").unwrap(), 0.0);
+        assert_eq!(hamming_distance("a", "").unwrap(), 1.0);
+        assert_eq!(hamming_distance("", "a").unwrap(), 1.0);
+        assert_eq!(hamming_distance("batter", "bat").unwrap(), 3.0); 
+        assert_eq!(hamming_distance("ask", "mike").unwrap(), 3.0);
+        assert_eq!(hamming_distance("ask", "ask").unwrap(), 0.0);
+        assert_eq!(hamming_distance("ask", "asked").unwrap(), 2.0);
+        assert_eq!(hamming_distance("bask", "asked").unwrap(), 5.0);
     }
 }

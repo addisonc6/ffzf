@@ -1,4 +1,5 @@
 use pyo3::prelude::*;
+use pyo3::exceptions::PyValueError;
 use rayon::prelude::*;
 use std::cmp::min;
 
@@ -15,7 +16,7 @@ pub fn closest_string_matching(target: &str, options: Vec<&str>, algorithm: &str
     let mut best = "";
     let scores: Vec<(f64, &&str)> = options
         .par_iter()
-        .map(|option| (scorer(target, option), option))
+        .map(|option| (scorer(target, option).unwrap(), option))
         .collect::<Vec<_>>();
     for (s, option) in scores {
         if s < score {
@@ -42,7 +43,7 @@ pub fn n_closest_string_matching(
     };
     let mut scores = options
         .par_iter()
-        .map(|option| (option, scorer(target, option)))
+        .map(|option| (option, scorer(target, option).unwrap()))
         .collect::<Vec<_>>();
     scores.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
     let mut best: Vec<String> = Vec::new();
@@ -53,7 +54,7 @@ pub fn n_closest_string_matching(
 }
 
 #[pyfunction]
-pub fn levenshtein_distance(word1: &str, word2: &str) -> f64 {
+pub fn levenshtein_distance(word1: &str, word2: &str) -> PyResult<f64> {
     let n = word1.len();
     let m = word2.len();
     let mut d = vec![vec![0; m + 1]; n + 1];
@@ -87,13 +88,13 @@ pub fn levenshtein_distance(word1: &str, word2: &str) -> f64 {
             )
         }
     }
-    d[n][m] as f64
+    Ok(d[n][m] as f64)
 }
 
 #[pyfunction]
-pub fn jaro_distance(word1: &str, word2: &str) -> f64 {
+pub fn jaro_distance(word1: &str, word2: &str) -> PyResult<f64> {
     if word1 == word2 {
-        return 1.0;
+        return Ok(1.0);
     }
     let n = word1.len();
     let m = word2.len();
@@ -122,7 +123,7 @@ pub fn jaro_distance(word1: &str, word2: &str) -> f64 {
         }
     }
     if matches == 0 {
-        return 0.0;
+        return Ok(0.0);
     }
     let mut transpositions = 0;
     let mut point = 0;
@@ -144,12 +145,12 @@ pub fn jaro_distance(word1: &str, word2: &str) -> f64 {
         + matches as f64 / m as f64
         + (matches - transpositions) as f64 / matches as f64)
         / 3.0;
-    jaro_distance
+    Ok(jaro_distance)
 }
 
 #[pyfunction]
-pub fn jaro_winkler_distance(word1: &str, word2: &str) -> f64 {
-    let mut jaro_distance = jaro_distance(word1, word2);
+pub fn jaro_winkler_distance(word1: &str, word2: &str) -> PyResult<f64> {
+    let mut jaro_distance = jaro_distance(word1, word2).unwrap();
     let word1_chars = word1
         .chars()
         .map(|c| c.to_ascii_uppercase())
@@ -169,17 +170,19 @@ pub fn jaro_winkler_distance(word1: &str, word2: &str) -> f64 {
         prefix = i32::min(4, prefix);
         jaro_distance += 0.1 * prefix as f64 * (1.0 - jaro_distance);
     }
-    jaro_distance
+    Ok(jaro_distance)
 }
 
 #[pyfunction]
-pub fn hamming_distance(word1: &str, word2: &str) -> f64 {
+pub fn hamming_distance(word1: &str, word2: &str) -> PyResult<f64> {
+    if word1.len() != word2.len() {
+        return Err(PyValueError::new_err("Words must be the same length"));
+    }
     let mut distance = 0;
     for (i, j) in word1.chars().zip(word2.chars()) {
         if i != j {
             distance += 1;
         }
     }
-    distance as f64 + usize::max(word1.len(), word2.len()) as f64
-        - usize::min(word1.len(), word2.len()) as f64
+    Ok(distance as f64)
 }
