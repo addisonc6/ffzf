@@ -1,8 +1,10 @@
 mod scorer;
+mod finder;
 
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 use scorer::*;
+use finder::*;
 
 #[pymodule]
 fn ffzf(py: Python, m: &PyModule) -> PyResult<()> {
@@ -11,14 +13,17 @@ fn ffzf(py: Python, m: &PyModule) -> PyResult<()> {
     scorers_module.add_wrapped(wrap_pyfunction!(hamming_distance))?;
     scorers_module.add_wrapped(wrap_pyfunction!(jaro_distance))?;
     scorers_module.add_wrapped(wrap_pyfunction!(jaro_winkler_distance))?;
-    m.add_function(wrap_pyfunction!(closest_string_matching, m)?)?;
-    m.add_function(wrap_pyfunction!(n_closest_string_matching, m)?)?;
+    let finders_module = PyModule::new(py, "finders")?;
+    finders_module.add_wrapped(wrap_pyfunction!(closest))?;
+    finders_module.add_wrapped(wrap_pyfunction!(n_closest))?;
     m.add_submodule(scorers_module)?;
+    m.add_submodule(finders_module)?;
     
     // work around for bug registering submdules (https://github.com/PyO3/pyo3/issues/759)
-    py.import("sys")?
-        .getattr("modules")?
-        .set_item("ffzf.scorers", scorers_module)?;
+    let mods = py.import("sys")?
+        .getattr("modules")?;
+    mods.set_item("ffzf.scorers", scorers_module)?;
+    mods.set_item("ffzf.finders", finders_module)?;
     Ok(())
 }
 
