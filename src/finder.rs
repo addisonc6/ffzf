@@ -5,8 +5,8 @@ use crate::scorer::*;
 #[pyfunction(algorithm = "\"levenshtein\"")]
 pub fn closest(target: &str, options: Vec<&str>, algorithm: &str) -> String {
     let scorer = match algorithm.to_uppercase().as_str() {
-        "JARO" => jaro_distance,
-        "JAROWINKLER" => jaro_winkler_distance,
+        "JARO" => jaro_similarity,
+        "JAROWINKLER" => jaro_winkler_similarity,
         "HAMMING" => hamming_distance,
         "LEVENSHTEIN" => levenshtein_distance,
         _ => panic!("Invalid Algorithm"),
@@ -46,8 +46,8 @@ pub fn n_closest(
     algorithm: &str,
 ) -> Vec<String> {
     let scorer = match algorithm.to_uppercase().as_str() {
-        "JARO" => jaro_distance,
-        "JAROWINKLER" => jaro_winkler_distance,
+        "JARO" => jaro_similarity,
+        "JAROWINKLER" => jaro_winkler_similarity,
         "HAMMING" => hamming_distance,
         "LEVENSHTEIN" => levenshtein_distance,
         _ => panic!("Invalid Algorithm"),

@@ -41,7 +41,7 @@ pub fn levenshtein_distance(word1: &str, word2: &str) -> PyResult<f64> {
 }
 
 #[pyfunction]
-pub fn jaro_distance(word1: &str, word2: &str) -> PyResult<f64> {
+pub fn jaro_similarity(word1: &str, word2: &str) -> PyResult<f64> {
     if word1 == word2 {
         return Ok(1.0);
     }
@@ -90,16 +90,16 @@ pub fn jaro_distance(word1: &str, word2: &str) -> PyResult<f64> {
         }
         transpositions /= 2;
     }
-    let jaro_distance = (matches as f64 / n as f64
+    let jaro_similarity = (matches as f64 / n as f64
         + matches as f64 / m as f64
         + (matches - transpositions) as f64 / matches as f64)
         / 3.0;
-    Ok(jaro_distance)
+    Ok(jaro_similarity)
 }
 
 #[pyfunction]
-pub fn jaro_winkler_distance(word1: &str, word2: &str) -> PyResult<f64> {
-    let mut jaro_distance = jaro_distance(word1, word2).unwrap();
+pub fn jaro_winkler_similarity(word1: &str, word2: &str) -> PyResult<f64> {
+    let mut jaro_similarity = jaro_similarity(word1, word2).unwrap();
     let word1_chars = word1
         .chars()
         .map(|c| c.to_ascii_uppercase())
@@ -108,7 +108,7 @@ pub fn jaro_winkler_distance(word1: &str, word2: &str) -> PyResult<f64> {
         .chars()
         .map(|c| c.to_ascii_uppercase())
         .collect::<Vec<char>>();
-    if jaro_distance > 0.7 {
+    if jaro_similarity > 0.7 {
         let mut prefix = 0;
         for i in 0..i32::min(word1.len() as i32, word2.len() as i32) {
             if word1_chars[i as usize] != word2_chars[i as usize] {
@@ -117,9 +117,9 @@ pub fn jaro_winkler_distance(word1: &str, word2: &str) -> PyResult<f64> {
             prefix += 1;
         }
         prefix = i32::min(4, prefix);
-        jaro_distance += 0.1 * prefix as f64 * (1.0 - jaro_distance);
+        jaro_similarity += 0.1 * prefix as f64 * (1.0 - jaro_similarity);
     }
-    Ok(jaro_distance)
+    Ok(jaro_similarity)
 }
 
 #[pyfunction]
