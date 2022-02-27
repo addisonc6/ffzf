@@ -74,4 +74,3 @@ docs/_build/
 .github/
 .env/
 Cargo.lock
-*.py

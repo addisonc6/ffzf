@@ -3,7 +3,7 @@ use rayon::prelude::*;
 use crate::scorer::*;
 
 #[pyfunction(algorithm = "\"levenshtein\"")]
-pub fn closest(target: &str, options: Vec<&str>, algorithm: &str) -> String {
+pub fn closest(target: &str, options: Vec<&str>, algorithm: &str) -> PyResult<String> {
     let scorer = match algorithm.to_uppercase().as_str() {
         "JARO" => jaro_similarity,
         "JAROWINKLER" => jaro_winkler_similarity,
@@ -35,7 +35,7 @@ pub fn closest(target: &str, options: Vec<&str>, algorithm: &str) -> String {
             }
         }
     }
-    return best.to_owned();
+    return Ok(best.to_owned());
 }
 
 #[pyfunction(algorithm = "\"levenshtein\"")]
@@ -44,7 +44,7 @@ pub fn n_closest(
     options: Vec<&str>,
     n: usize,
     algorithm: &str,
-) -> Vec<String> {
+) -> PyResult<Vec<String>> {
     let scorer = match algorithm.to_uppercase().as_str() {
         "JARO" => jaro_similarity,
         "JAROWINKLER" => jaro_winkler_similarity,
@@ -67,5 +67,5 @@ pub fn n_closest(
     for (option, _) in scores.iter().take(n) {
         best.push(String::from(**option));
     }
-    return best;
+    return Ok(best);
 }
