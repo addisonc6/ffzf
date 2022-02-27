@@ -2,6 +2,10 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use std::cmp::min;
 
+/// levenshtein_distance(a, b)
+/// --
+/// 
+/// Calculate the Levenshtein distance between two strings.
 #[pyfunction]
 pub fn levenshtein_distance(word1: &str, word2: &str) -> PyResult<f64> {
     let n = word1.len();
@@ -40,6 +44,10 @@ pub fn levenshtein_distance(word1: &str, word2: &str) -> PyResult<f64> {
     Ok(d[n][m] as f64)
 }
 
+/// jaro_similarity(a, b)
+/// --
+/// 
+/// Calculate the Jaro similarity between two strings.
 #[pyfunction]
 pub fn jaro_similarity(word1: &str, word2: &str) -> PyResult<f64> {
     if word1 == word2 {
@@ -97,6 +105,10 @@ pub fn jaro_similarity(word1: &str, word2: &str) -> PyResult<f64> {
     Ok(jaro_similarity)
 }
 
+/// jaro_winkler_similarity(a, b)
+/// --
+/// 
+/// Calculate the Jaro-Winkler similarity between two strings.
 #[pyfunction]
 pub fn jaro_winkler_similarity(word1: &str, word2: &str) -> PyResult<f64> {
     let mut jaro_similarity = jaro_similarity(word1, word2).unwrap();
@@ -122,6 +134,10 @@ pub fn jaro_winkler_similarity(word1: &str, word2: &str) -> PyResult<f64> {
     Ok(jaro_similarity)
 }
 
+/// hamming_distance(a, b)
+/// --
+/// 
+/// Calculate the Hamming distance between two strings.
 #[pyfunction]
 pub fn hamming_distance(word1: &str, word2: &str) -> PyResult<f64> {
     if word1.len() != word2.len() {

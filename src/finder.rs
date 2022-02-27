@@ -2,6 +2,10 @@ use pyo3::{prelude::*, exceptions::PyValueError};
 use rayon::prelude::*;
 use crate::scorer::*;
 
+/// closest(target, candidates, /, algorithm='levenshtein')
+/// --
+/// 
+/// Find the closest match to the target string in the candidates.
 #[pyfunction(algorithm = "\"levenshtein\"")]
 pub fn closest(target: &str, options: Vec<&str>, algorithm: &str) -> PyResult<String> {
     if !["LEVENSHTEIN", "JARO", "JAROWINKLER", "HAMMING"].contains(&algorithm.to_uppercase().as_str()) {
@@ -51,6 +55,10 @@ pub fn closest(target: &str, options: Vec<&str>, algorithm: &str) -> PyResult<St
     return Ok(best.to_owned());
 }
 
+/// n_closest(target, candidates, n, /, algorithm='levenshtein')
+/// --
+/// 
+/// Find the n closest matches to the target string in the candidates.
 #[pyfunction(algorithm = "\"levenshtein\"")]
 pub fn n_closest(
     target: &str,
