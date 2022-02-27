@@ -1,4 +1,4 @@
-use pyo3::prelude::*;
+use pyo3::{prelude::*, exceptions::PyValueError};
 use rayon::prelude::*;
 use crate::scorer::*;
 
@@ -11,6 +11,13 @@ pub fn closest(target: &str, options: Vec<&str>, algorithm: &str) -> PyResult<St
         "LEVENSHTEIN" => levenshtein_distance,
         _ => panic!("Invalid Algorithm"),
     };
+    if algorithm.to_uppercase().as_str() == "HAMMING" {
+        for option in &options {
+            if option.len() != target.len() {
+                return Err(PyValueError::new_err("Words must be the same length"));
+            }
+        }
+    }
     let mut score = f64::MAX;
     let mut best = "";
     let scores: Vec<(f64, &&str)> = options
@@ -52,6 +59,13 @@ pub fn n_closest(
         "LEVENSHTEIN" => levenshtein_distance,
         _ => panic!("Invalid Algorithm"),
     };
+    if algorithm.to_uppercase().as_str() == "HAMMING" {
+        for option in &options {
+            if option.len() != target.len() {
+                return Err(PyValueError::new_err("Words must be the same length"));
+            }
+        }
+    }
     let mut scores = options
         .par_iter()
         .map(|option| (option, scorer(target, option).unwrap()))
