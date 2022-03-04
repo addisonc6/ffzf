@@ -17,7 +17,7 @@ from ffzf.finders import n_closest
 best_matches = n_closest("hello", ["harps", "apples", "jello"], 2)
 
 #Specify an algorithm (default is levenshtein distance)
-best_match = closest("hello", ["harps", "apples", "jello"], algorithm="JAROWINKLER")
+best_match = closest("hello", ["harps", "apples", "jello"], algorithm=ffzf.JAROWINKLER)
 ```
 
 # Supported Algorithms

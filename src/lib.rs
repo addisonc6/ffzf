@@ -18,6 +18,10 @@ fn ffzf(py: Python, m: &PyModule) -> PyResult<()> {
     finders_module.add_wrapped(wrap_pyfunction!(n_closest))?;
     m.add_submodule(scorers_module)?;
     m.add_submodule(finders_module)?;
+    m.add("LEVENSHTEIN", "LEVENSHTEIN")?;
+    m.add("JARO", "JARO")?;
+    m.add("JAROWINKLER", "JAROWINKLER")?;
+    m.add("HAMMING", "HAMMING")?;
     
     // work around for bug registering submdules (https://github.com/PyO3/pyo3/issues/759)
     let mods = py.import("sys")?
