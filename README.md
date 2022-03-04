@@ -25,3 +25,5 @@ best_match = closest("hello", ["harps", "apples", "jello"], algorithm="JAROWINKL
 - Jaro Similarity ("JARO")
 - Jaro-Winkler Similarity ("JAROWINKLER")
 - Hamming Distance ("HAMMING")
+<br><br><br>
+![workflow](https://github.com/addisonc6/ffzf/actions/workflows/CI.yml/badge.svg)

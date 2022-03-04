@@ -1,7 +1,12 @@
 use pyo3::{prelude::*, exceptions::PyValueError};
 use rayon::prelude::*;
 use crate::scorer::*;
-
+enum Scorer {
+    LevenshteinDistance,
+    HammingDistance,
+    JaroSimilarity,
+    JaroWinklerSimilarity,
+}
 /// closest(target, candidates, /, algorithm='levenshtein')
 /// --
 /// 
