@@ -9,15 +9,16 @@ pip install ffzf
 # Usage
 ```python
 #Find closest string matching
-from ffzf.finders import closest
+from ffzf import closest
 best_match = closest("hello", ["harps", "apples", "jello"])
 
 #Find n best matches
-from ffzf.finders import n_closest
+from ffzf import n_closest
 best_matches = n_closest("hello", ["harps", "apples", "jello"], 2)
 
+from ffzf import JAROWINKLER
 #Specify an algorithm (default is levenshtein distance)
-best_match = closest("hello", ["harps", "apples", "jello"], algorithm=ffzf.JAROWINKLER)
+best_match = closest("hello", ["harps", "apples", "jello"], algorithm=JAROWINKLER)
 ```
 
 # Supported Algorithms
