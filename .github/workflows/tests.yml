@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Run Tests
           run: |
-          - pip install maturin
-          - maturin develop
-          - python tests/test_finders.py
-          - python tests/test_scorers.py
+            pip install maturin
+            maturin develop
+            python tests/test_finders.py
+            python tests/test_scorers.py
