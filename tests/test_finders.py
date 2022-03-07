@@ -1,6 +1,6 @@
 import unittest
 
-from ffzf.finders import closest, n_closest
+from ffzf import closest, n_closest
 
 class TestFindingFunctions(unittest.TestCase):
 

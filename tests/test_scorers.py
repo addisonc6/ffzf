@@ -1,6 +1,6 @@
 import unittest
 
-from ffzf.scorers import (
+from ffzf import (
     levenshtein_distance,
     jaro_similarity,
     jaro_winkler_similarity,
