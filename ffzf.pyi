@@ -1,4 +1,4 @@
-def closest(target: str, candidates: list[str], algorithm: str = "levenshtein") -> str:
+def closest(target: str, candidates: list[str], algorithm: str = "levenshtein", case_sensitive: bool = False) -> str:
     """
     Find the closest match to the target string in the list of candidates.
     :param target: The target string to find a match for.
@@ -8,10 +8,12 @@ def closest(target: str, candidates: list[str], algorithm: str = "levenshtein") 
         - "jaro"
         - "jarowinkler"
         - "hamming"
+    :param case_sensitive: Whether or not to use case sensitivity when finding the closest match.
     """
     ...
 
-def n_closest(target: str, candidates: list[str], n: int, algorithm: str = "levenshtein") -> list[str]:
+
+def n_closest(target: str, candidates: list[str], n: int, algorithm: str = "levenshtein", case_senstive: bool = False) -> list[str]:
     """
     Find the n closest matches to the target string in the list of candidates.
     :param target: The target string to find a match for.
@@ -22,6 +24,6 @@ def n_closest(target: str, candidates: list[str], n: int, algorithm: str = "leve
         - "jaro"
         - "jarowinkler"
         - "hamming"
+    :param case_sensitive: Whether or not to use case sensitivity when finding the closest matches.
     """
     ...
-

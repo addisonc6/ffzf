@@ -1,24 +1,18 @@
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use std::cmp::min;
-
+use crate::utils::char_vec;
 /// levenshtein_distance(a, b)
 /// --
 /// 
 /// Calculate the Levenshtein distance between two strings.
-#[pyfunction]
-pub fn levenshtein_distance(word1: &str, word2: &str) -> PyResult<f64> {
+#[pyfunction(case_sensitive = "false")]
+pub fn levenshtein_distance(word1: &str, word2: &str, case_sensitive: bool) -> PyResult<f64> {
     let n = word1.len();
     let m = word2.len();
     let mut d = vec![vec![0; m + 1]; n + 1];
-    let word1_chars = word1
-        .chars()
-        .map(|c| c.to_ascii_uppercase())
-        .collect::<Vec<char>>();
-    let word2_chars = word2
-        .chars()
-        .map(|c| c.to_ascii_uppercase())
-        .collect::<Vec<char>>();
+    let word1_chars = char_vec(word1, case_sensitive);
+    let word2_chars = char_vec(word2, case_sensitive);
     for i in 0..=n {
         d[i][0] = i
     }
@@ -48,21 +42,15 @@ pub fn levenshtein_distance(word1: &str, word2: &str) -> PyResult<f64> {
 /// --
 /// 
 /// Calculate the Jaro similarity between two strings.
-#[pyfunction]
-pub fn jaro_similarity(word1: &str, word2: &str) -> PyResult<f64> {
+#[pyfunction(case_sensitive = "false")]
+pub fn jaro_similarity(word1: &str, word2: &str, case_sensitive: bool) -> PyResult<f64> {
     if word1 == word2 {
         return Ok(1.0);
     }
     let n = word1.len();
     let m = word2.len();
-    let word1_chars = word1
-        .chars()
-        .map(|c| c.to_ascii_uppercase())
-        .collect::<Vec<char>>();
-    let word2_chars = word2
-        .chars()
-        .map(|c| c.to_ascii_uppercase())
-        .collect::<Vec<char>>();
+    let word1_chars = char_vec(word1, case_sensitive);
+    let word2_chars = char_vec(word2, case_sensitive);
     let max_dist: i32 = (i32::max(m as i32, n as i32) / 2) - 1;
     let mut matches = 0;
     let mut hash_word1 = vec![0; n];
@@ -109,17 +97,11 @@ pub fn jaro_similarity(word1: &str, word2: &str) -> PyResult<f64> {
 /// --
 /// 
 /// Calculate the Jaro-Winkler similarity between two strings.
-#[pyfunction]
-pub fn jaro_winkler_similarity(word1: &str, word2: &str) -> PyResult<f64> {
-    let mut jaro_similarity = jaro_similarity(word1, word2).unwrap();
-    let word1_chars = word1
-        .chars()
-        .map(|c| c.to_ascii_uppercase())
-        .collect::<Vec<char>>();
-    let word2_chars = word2
-        .chars()
-        .map(|c| c.to_ascii_uppercase())
-        .collect::<Vec<char>>();
+#[pyfunction(case_sensitive = "false")]
+pub fn jaro_winkler_similarity(word1: &str, word2: &str, case_sensitive: bool) -> PyResult<f64> {
+    let mut jaro_similarity = jaro_similarity(word1, word2, case_sensitive).unwrap();
+    let word1_chars = char_vec(word1, case_sensitive);
+    let word2_chars = char_vec(word2, case_sensitive);
     if jaro_similarity > 0.7 {
         let mut prefix = 0;
         for i in 0..i32::min(word1.len() as i32, word2.len() as i32) {
@@ -138,13 +120,15 @@ pub fn jaro_winkler_similarity(word1: &str, word2: &str) -> PyResult<f64> {
 /// --
 /// 
 /// Calculate the Hamming distance between two strings.
-#[pyfunction]
-pub fn hamming_distance(word1: &str, word2: &str) -> PyResult<f64> {
+#[pyfunction(case_sensitive = "false")]
+pub fn hamming_distance(word1: &str, word2: &str, case_sensitive: bool) -> PyResult<f64> {
+    let word1_chars = char_vec(word1, case_sensitive);
+    let word2_chars = char_vec(word2, case_sensitive);
     if word1.len() != word2.len() {
         return Err(PyValueError::new_err("Words must be the same length"));
     }
     let mut distance = 0;
-    for (i, j) in word1.chars().zip(word2.chars()) {
+    for (i, j) in word1_chars.iter().zip(word2_chars.iter()) {
         if i != j {
             distance += 1;
         }

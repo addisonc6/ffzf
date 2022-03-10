@@ -1,5 +1,6 @@
 mod scorer;
 mod finder;
+mod utils;
 
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;

@@ -7,8 +7,8 @@ use crate::scorer::*;
 /// --
 /// 
 /// Find the closest match to the target string in the candidates.
-#[pyfunction(algorithm = "\"levenshtein\"")]
-pub fn closest(target: &str, options: Vec<&str>, algorithm: &str) -> PyResult<String> {
+#[pyfunction(algorithm = "\"levenshtein\"", case_sensitive = "false")]
+pub fn closest(target: &str, options: Vec<&str>, algorithm: &str, case_sensitive: bool) -> PyResult<String> {
     if !["LEVENSHTEIN", "JARO", "JAROWINKLER", "HAMMING"].contains(&algorithm.to_uppercase().as_str()) {
         return Err(PyValueError::new_err(format!(
             "Unsupported algorithm: {}",
@@ -33,7 +33,7 @@ pub fn closest(target: &str, options: Vec<&str>, algorithm: &str) -> PyResult<St
     let mut best = "";
     let scores: Vec<(f64, &&str)> = options
         .par_iter()
-        .map(|option| (scorer(target, option).unwrap(), option))
+        .map(|option| (scorer(target, option, case_sensitive).unwrap(), option))
         .collect::<Vec<_>>();
     if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
         || algorithm.to_uppercase().as_str() == "HAMMING"
@@ -60,12 +60,13 @@ pub fn closest(target: &str, options: Vec<&str>, algorithm: &str) -> PyResult<St
 /// --
 /// 
 /// Find the n closest matches to the target string in the candidates.
-#[pyfunction(algorithm = "\"levenshtein\"")]
+#[pyfunction(algorithm = "\"levenshtein\"" , case_sensitive = "false")]
 pub fn n_closest(
     target: &str,
     options: Vec<&str>,
     n: usize,
     algorithm: &str,
+    case_sensitive: bool,
 ) -> PyResult<Vec<String>> {
     if !["LEVENSHTEIN", "JARO", "JAROWINKLER", "HAMMING"].contains(&algorithm.to_uppercase().as_str()) {
         return Err(PyValueError::new_err(format!(
@@ -89,7 +90,7 @@ pub fn n_closest(
     }
     let mut scores = options
         .par_iter()
-        .map(|option| (option, scorer(target, option).unwrap()))
+        .map(|option| (option, scorer(target, option, case_sensitive).unwrap()))
         .collect::<Vec<_>>();
     if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
         || algorithm.to_uppercase().as_str() == "HAMMING"
