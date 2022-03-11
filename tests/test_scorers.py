@@ -20,7 +20,7 @@ class TestScoringFunctions(unittest.TestCase):
         self.assertEqual(levenshtein_distance("a", "ab"), 1.0)
         self.assertEqual(levenshtein_distance("ab", "a"), 1.0)
         self.assertEqual(levenshtein_distance("a", "A"), 0.0)
-        self.assertEqual(levenshtein_distance("A", "a", case_sensitive=False), 1.0)
+        self.assertEqual(levenshtein_distance("A", "a", case_sensitive=True), 1.0)
         self.assertEqual(levenshtein_distance("euphoria", "elation"), 7.0)
         self.assertEqual(
             levenshtein_distance("triangle", "abcdefghijklmnopqrstuvwxyz"),
