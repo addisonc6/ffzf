@@ -1,17 +1,26 @@
-use pyo3::{prelude::*, exceptions::PyValueError};
-use rayon::prelude::*;
 use crate::scorer::*;
+use pyo3::{exceptions::PyValueError, prelude::*};
+use rayon::prelude::*;
 
-
-/// closest(target, candidates, /, algorithm='levenshtein')
+/// closest(target, candidates, /, algorithm='levenshtein', case_sensitive=False)
 /// --
-/// 
+///
 /// Find the closest match to the target string in the candidates.
 #[pyfunction(algorithm = "\"levenshtein\"", case_sensitive = "false")]
-pub fn closest(target: &str, options: Vec<&str>, algorithm: &str, case_sensitive: bool) -> PyResult<String> {
-    if !["LEVENSHTEIN", "JARO", "JAROWINKLER", "HAMMING"].contains(&algorithm.to_uppercase().as_str()) {
+pub fn closest(
+    target: &str,
+    options: Vec<&str>,
+    algorithm: &str,
+    case_sensitive: bool,
+) -> PyResult<String> {
+    if options.len() == 0 {
+        return Err(PyValueError::new_err("No options provided."));
+    }
+    if !["LEVENSHTEIN", "JARO", "JAROWINKLER", "HAMMING"]
+        .contains(&algorithm.to_uppercase().as_str())
+    {
         return Err(PyValueError::new_err(format!(
-            "Unsupported algorithm: {}",
+            "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
             algorithm
         )));
     }
@@ -25,7 +34,9 @@ pub fn closest(target: &str, options: Vec<&str>, algorithm: &str, case_sensitive
     if algorithm.to_uppercase().as_str() == "HAMMING" {
         for option in &options {
             if option.len() != target.len() {
-                return Err(PyValueError::new_err("Words must be the same length"));
+                return Err(PyValueError::new_err(
+                    "Words must be the same length to use Hamming distance.",
+                ));
             }
         }
     }
@@ -56,11 +67,11 @@ pub fn closest(target: &str, options: Vec<&str>, algorithm: &str, case_sensitive
     return Ok(best.to_owned());
 }
 
-/// n_closest(target, candidates, n, /, algorithm='levenshtein')
+/// n_closest(target, candidates, n, /, algorithm='levenshtein', case_sensitive=False)
 /// --
-/// 
+///
 /// Find the n closest matches to the target string in the candidates.
-#[pyfunction(algorithm = "\"levenshtein\"" , case_sensitive = "false")]
+#[pyfunction(algorithm = "\"levenshtein\"", case_sensitive = "false")]
 pub fn n_closest(
     target: &str,
     options: Vec<&str>,
@@ -68,9 +79,17 @@ pub fn n_closest(
     algorithm: &str,
     case_sensitive: bool,
 ) -> PyResult<Vec<String>> {
-    if !["LEVENSHTEIN", "JARO", "JAROWINKLER", "HAMMING"].contains(&algorithm.to_uppercase().as_str()) {
+    if options.len() == 0 {
+        return Err(PyValueError::new_err("No options provided."));
+    }
+    if n < 1 {
+        return Err(PyValueError::new_err("n must be greater than 0."));
+    }
+    if !["LEVENSHTEIN", "JARO", "JAROWINKLER", "HAMMING"]
+        .contains(&algorithm.to_uppercase().as_str())
+    {
         return Err(PyValueError::new_err(format!(
-            "Unsupported algorithm: {}",
+            "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
             algorithm
         )));
     }
@@ -84,7 +103,9 @@ pub fn n_closest(
     if algorithm.to_uppercase().as_str() == "HAMMING" {
         for option in &options {
             if option.len() != target.len() {
-                return Err(PyValueError::new_err("Words must be the same length"));
+                return Err(PyValueError::new_err(
+                    "Words must be the same length to use Hamming distance.",
+                ));
             }
         }
     }

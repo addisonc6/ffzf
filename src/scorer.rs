@@ -1,10 +1,11 @@
+use crate::utils::char_vec;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use std::cmp::min;
-use crate::utils::char_vec;
-/// levenshtein_distance(a, b)
+
+/// levenshtein_distance(a, b, /, case_sensitive=False)
 /// --
-/// 
+///
 /// Calculate the Levenshtein distance between two strings.
 #[pyfunction(case_sensitive = "false")]
 pub fn levenshtein_distance(word1: &str, word2: &str, case_sensitive: bool) -> PyResult<f64> {
@@ -38,9 +39,9 @@ pub fn levenshtein_distance(word1: &str, word2: &str, case_sensitive: bool) -> P
     Ok(d[n][m] as f64)
 }
 
-/// jaro_similarity(a, b)
+/// jaro_similarity(a, b, /, case_sensitive=False)
 /// --
-/// 
+///
 /// Calculate the Jaro similarity between two strings.
 #[pyfunction(case_sensitive = "false")]
 pub fn jaro_similarity(word1: &str, word2: &str, case_sensitive: bool) -> PyResult<f64> {
@@ -93,9 +94,9 @@ pub fn jaro_similarity(word1: &str, word2: &str, case_sensitive: bool) -> PyResu
     Ok(jaro_similarity)
 }
 
-/// jaro_winkler_similarity(a, b)
+/// jaro_winkler_similarity(a, b, /, case_sensitive = False)
 /// --
-/// 
+///
 /// Calculate the Jaro-Winkler similarity between two strings.
 #[pyfunction(case_sensitive = "false")]
 pub fn jaro_winkler_similarity(word1: &str, word2: &str, case_sensitive: bool) -> PyResult<f64> {
@@ -116,16 +117,18 @@ pub fn jaro_winkler_similarity(word1: &str, word2: &str, case_sensitive: bool) -
     Ok(jaro_similarity)
 }
 
-/// hamming_distance(a, b)
+/// hamming_distance(a, b, /, case_sensitive = False)
 /// --
-/// 
+///
 /// Calculate the Hamming distance between two strings.
 #[pyfunction(case_sensitive = "false")]
 pub fn hamming_distance(word1: &str, word2: &str, case_sensitive: bool) -> PyResult<f64> {
     let word1_chars = char_vec(word1, case_sensitive);
     let word2_chars = char_vec(word2, case_sensitive);
     if word1.len() != word2.len() {
-        return Err(PyValueError::new_err("Words must be the same length"));
+        return Err(PyValueError::new_err(
+            "Words must be the same length to use Hamming distance",
+        ));
     }
     let mut distance = 0;
     for (i, j) in word1_chars.iter().zip(word2_chars.iter()) {
