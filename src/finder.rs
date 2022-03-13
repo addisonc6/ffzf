@@ -126,3 +126,48 @@ pub fn n_closest(
     }
     return Ok(best);
 }
+
+#[pyfunction(algorithm = "\"levenshtein\"", case_sensitive = "false")]
+pub fn closest_index_pair(
+    target: &str,
+    text: &str,
+    algorithm: &str,
+    case_sensitive: bool,
+) -> PyResult<(usize, usize)> {
+    if text.len() == 0 {
+        return Ok((0, 0));
+    }
+    if !["LEVENSHTEIN", "JARO", "JAROWINKLER", "HAMMING"]
+        .contains(&algorithm.to_uppercase().as_str())
+    {
+        return Err(PyValueError::new_err(format!(
+            "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
+            algorithm
+        )));
+    }
+    let scorer = match algorithm.to_uppercase().as_str() {
+        "JARO" => jaro_similarity,
+        "JAROWINKLER" => jaro_winkler_similarity,
+        "HAMMING" => hamming_distance,
+        "LEVENSHTEIN" => levenshtein_distance,
+        _ => unreachable!(),
+    };
+
+    let mut scores: Vec<(usize, f64)> = (0..text.len() - target.len())
+        .into_par_iter()
+        .map(|i| {
+            (
+                i,
+                scorer(target, &text[i..i + target.len()], case_sensitive).unwrap(),
+            )
+        })
+        .collect::<Vec<_>>();
+    if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
+        || algorithm.to_uppercase().as_str() == "HAMMING"
+    {
+        scores.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+    } else {
+        scores.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+    }
+    return Ok((scores[0].0, scores[0].0 + target.len()));
+}

@@ -15,6 +15,7 @@ fn ffzf(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(jaro_winkler_similarity))?;
     m.add_wrapped(wrap_pyfunction!(closest))?;
     m.add_wrapped(wrap_pyfunction!(n_closest))?;
+    m.add_wrapped(wrap_pyfunction!(closest_index_pair))?;
     m.add("LEVENSHTEIN", "LEVENSHTEIN")?;
     m.add("JARO", "JARO")?;
     m.add("JAROWINKLER", "JAROWINKLER")?;
