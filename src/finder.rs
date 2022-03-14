@@ -16,8 +16,7 @@ pub fn closest(
     if options.len() == 0 {
         return Err(PyValueError::new_err("No options provided."));
     }
-    if !["LEVENSHTEIN", "JARO", "JAROWINKLER", "HAMMING"]
-        .contains(&algorithm.to_uppercase().as_str())
+    if !is_valid_algorithm_name(algorithm)
     {
         return Err(PyValueError::new_err(format!(
             "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
@@ -85,8 +84,7 @@ pub fn n_closest(
     if n < 1 {
         return Err(PyValueError::new_err("n must be greater than 0."));
     }
-    if !["LEVENSHTEIN", "JARO", "JAROWINKLER", "HAMMING"]
-        .contains(&algorithm.to_uppercase().as_str())
+    if !is_valid_algorithm_name(algorithm)
     {
         return Err(PyValueError::new_err(format!(
             "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
@@ -137,8 +135,7 @@ pub fn closest_index_pair(
     if text.len() == 0 {
         return Ok((0, 0));
     }
-    if !["LEVENSHTEIN", "JARO", "JAROWINKLER", "HAMMING"]
-        .contains(&algorithm.to_uppercase().as_str())
+    if !is_valid_algorithm_name(algorithm) 
     {
         return Err(PyValueError::new_err(format!(
             "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
@@ -170,4 +167,9 @@ pub fn closest_index_pair(
         scores.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
     }
     return Ok((scores[0].0, scores[0].0 + target.len()));
+}
+
+fn is_valid_algorithm_name(algorithm: &str) -> bool {
+    return ["LEVENSHTEIN", "JARO", "JAROWINKLER", "HAMMING"]
+        .contains(&algorithm.to_uppercase().as_str());
 }
