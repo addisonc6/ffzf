@@ -39,9 +39,9 @@ pub fn closest(
             }
         }
     }
-    let mut score = f64::MAX;
+    let mut score = f32::MAX;
     let mut best = "";
-    let scores: Vec<(f64, &&str)> = options
+    let scores: Vec<(f32, &&str)> = options
         .par_iter()
         .map(|option| (scorer(target, option, case_sensitive).unwrap(), option))
         .collect::<Vec<_>>();
@@ -55,7 +55,7 @@ pub fn closest(
             }
         }
     } else {
-        score = f64::MIN;
+        score = f32::MIN;
         for (s, option) in scores {
             if s > score {
                 score = s;
@@ -150,7 +150,7 @@ pub fn closest_index_pair(
         _ => unreachable!(),
     };
 
-    let mut scores: Vec<(usize, f64)> = (0..text.len() - target.len())
+    let mut scores: Vec<(usize, f32)> = (0..text.len() - target.len())
         .into_par_iter()
         .map(|i| {
             (
