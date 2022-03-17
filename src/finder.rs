@@ -150,7 +150,7 @@ pub fn closest_index_pair(
         _ => unreachable!(),
     };
 
-    let mut scores: Vec<(usize, f32)> = (0..text.len() - target.len())
+    let mut scores: Vec<(usize, f32)> = (0..text.len() - target.len() + 1)
         .into_par_iter()
         .map(|i| {
             (
