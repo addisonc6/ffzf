@@ -6,12 +6,13 @@ use rayon::prelude::*;
 /// --
 ///
 /// Find the closest match to the target string in the candidates.
-#[pyfunction(algorithm = "\"levenshtein\"", case_sensitive = "false")]
+#[pyfunction(algorithm = "\"levenshtein\"", case_sensitive = "false", threshold="0.0")]
 pub fn closest(
     target: &str,
     options: Vec<&str>,
     algorithm: &str,
     case_sensitive: bool,
+    threshold: f32,
 ) -> PyResult<String> {
     if options.len() == 0 {
         return Err(PyValueError::new_err("No options provided."));
@@ -43,7 +44,7 @@ pub fn closest(
     let mut best = "";
     let scores: Vec<(f32, &&str)> = options
         .par_iter()
-        .map(|option| (scorer(target, option, case_sensitive).unwrap(), option))
+        .map(|option| (scorer(target, option, case_sensitive, threshold).unwrap(), option))
         .collect::<Vec<_>>();
     if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
         || algorithm.to_uppercase().as_str() == "HAMMING"
@@ -70,13 +71,14 @@ pub fn closest(
 /// --
 ///
 /// Find the n closest matches to the target string in the candidates.
-#[pyfunction(algorithm = "\"levenshtein\"", case_sensitive = "false")]
+#[pyfunction(algorithm = "\"levenshtein\"", case_sensitive = "false", threshold="0.0")]
 pub fn n_closest(
     target: &str,
     options: Vec<&str>,
     n: usize,
     algorithm: &str,
     case_sensitive: bool,
+    threshold: f32,
 ) -> PyResult<Vec<String>> {
     if options.len() == 0 {
         return Err(PyValueError::new_err("No options provided."));
@@ -109,7 +111,7 @@ pub fn n_closest(
     }
     let mut scores = options
         .par_iter()
-        .map(|option| (option, scorer(target, option, case_sensitive).unwrap()))
+        .map(|option| (option, scorer(target, option, case_sensitive, threshold).unwrap()))
         .collect::<Vec<_>>();
     if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
         || algorithm.to_uppercase().as_str() == "HAMMING"
@@ -125,12 +127,13 @@ pub fn n_closest(
     return Ok(best);
 }
 
-#[pyfunction(algorithm = "\"levenshtein\"", case_sensitive = "false")]
+#[pyfunction(algorithm = "\"levenshtein\"", case_sensitive = "false", threshold="0.0")]
 pub fn closest_index_pair(
     target: &str,
     text: &str,
     algorithm: &str,
     case_sensitive: bool,
+    threshold: f32,
 ) -> PyResult<(usize, usize)> {
     if text.len() == 0 {
         return Ok((0, 0));
@@ -155,7 +158,7 @@ pub fn closest_index_pair(
         .map(|i| {
             (
                 i,
-                scorer(target, &text[i..i + target.len()], case_sensitive).unwrap(),
+                scorer(target, &text[i..i + target.len()], case_sensitive, threshold).unwrap(),
             )
         })
         .collect::<Vec<_>>();
