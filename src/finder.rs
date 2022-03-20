@@ -24,13 +24,7 @@ pub fn closest(
             algorithm
         )));
     }
-    let scorer = match algorithm.to_uppercase().as_str() {
-        "JARO" => jaro_similarity,
-        "JAROWINKLER" => jaro_winkler_similarity,
-        "HAMMING" => hamming_distance,
-        "LEVENSHTEIN" => levenshtein_distance,
-        _ => unreachable!(),
-    };
+    let scorer = get_scorer(algorithm);
     if algorithm.to_uppercase().as_str() == "HAMMING" {
         for option in &options {
             if option.len() != target.len() {
@@ -93,13 +87,7 @@ pub fn n_closest(
             algorithm
         )));
     }
-    let scorer = match algorithm.to_uppercase().as_str() {
-        "JARO" => jaro_similarity,
-        "JAROWINKLER" => jaro_winkler_similarity,
-        "HAMMING" => hamming_distance,
-        "LEVENSHTEIN" => levenshtein_distance,
-        _ => unreachable!(),
-    };
+    let scorer = get_scorer(algorithm);
     if algorithm.to_uppercase().as_str() == "HAMMING" {
         for option in &options {
             if option.len() != target.len() {
@@ -145,13 +133,7 @@ pub fn closest_index_pair(
             algorithm
         )));
     }
-    let scorer = match algorithm.to_uppercase().as_str() {
-        "JARO" => jaro_similarity,
-        "JAROWINKLER" => jaro_winkler_similarity,
-        "HAMMING" => hamming_distance,
-        "LEVENSHTEIN" => levenshtein_distance,
-        _ => unreachable!(),
-    };
+    let scorer = get_scorer(algorithm);
 
     let mut scores: Vec<(usize, f32)> = (0..text.len() - target.len() + 1)
         .into_par_iter()
@@ -175,4 +157,14 @@ pub fn closest_index_pair(
 fn is_valid_algorithm_name(algorithm: &str) -> bool {
     return ["LEVENSHTEIN", "JARO", "JAROWINKLER", "HAMMING"]
         .contains(&algorithm.to_uppercase().as_str());
+}
+
+fn get_scorer(algorithm: &str) -> fn(&str, &str, bool, f32) -> PyResult<f32> {
+    return match algorithm.to_uppercase().as_str() {
+        "JARO" => jaro_similarity,
+        "JAROWINKLER" => jaro_winkler_similarity,
+        "HAMMING" => hamming_distance,
+        "LEVENSHTEIN" => levenshtein_distance,
+        _ => unreachable!(),
+    };
 }
