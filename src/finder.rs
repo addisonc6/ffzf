@@ -101,13 +101,7 @@ pub fn n_closest(
         .par_iter()
         .map(|option| (option, scorer(target, option, case_sensitive, threshold).unwrap()))
         .collect::<Vec<_>>();
-    if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
-        || algorithm.to_uppercase().as_str() == "HAMMING"
-    {
-        scores.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
-    } else {
-        scores.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
-    }
+    sort_scores(&mut scores, algorithm);
     let mut best: Vec<String> = Vec::new();
     for (option, _) in scores.iter().take(n) {
         best.push(String::from(**option));
@@ -144,13 +138,7 @@ pub fn closest_index_pair(
             )
         })
         .collect::<Vec<_>>();
-    if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
-        || algorithm.to_uppercase().as_str() == "HAMMING"
-    {
-        scores.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
-    } else {
-        scores.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
-    }
+    sort_scores(&mut scores, algorithm);
     return Ok((scores[0].0, scores[0].0 + target.len()));
 }
 
@@ -167,4 +155,14 @@ fn get_scorer(algorithm: &str) -> fn(&str, &str, bool, f32) -> PyResult<f32> {
         "LEVENSHTEIN" => levenshtein_distance,
         _ => unreachable!(),
     };
+}
+
+fn sort_scores<T>(scores: &mut Vec<(T, f32)>, algorithm: &str) {
+    if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
+        || algorithm.to_uppercase().as_str() == "HAMMING"
+    {
+        scores.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+    } else {
+        scores.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+    }
 }
