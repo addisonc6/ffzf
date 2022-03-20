@@ -157,12 +157,25 @@ fn get_scorer(algorithm: &str) -> fn(&str, &str, bool, f32) -> PyResult<f32> {
     };
 }
 
-fn sort_scores<T>(scores: &mut Vec<(T, f32)>, algorithm: &str) {
+fn sort_scores<T: Send>(scores: &mut Vec<(T, f32)>, algorithm: &str) {
+    if scores.len() > 1000 {
+        return par_sort_scores(scores, algorithm)
+    }
     if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
         || algorithm.to_uppercase().as_str() == "HAMMING"
     {
         scores.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
     } else {
         scores.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+    }
+}
+
+fn par_sort_scores<T: Send>(scores: &mut Vec<(T, f32)>, algorithm: &str) {
+    if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
+        || algorithm.to_uppercase().as_str() == "HAMMING"
+    {
+        scores.par_sort_unstable_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+    } else {
+        scores.par_sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
     }
 }
