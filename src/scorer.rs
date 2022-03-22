@@ -28,7 +28,7 @@ pub fn levenshtein_distance(
     for i in 1..=n {
         for j in 1..=m {
             let sub_cost;
-            if (i - 1 < word1_chars.len() && j - 1 < word2_chars.len())
+            if (i - 1 < n && j - 1 < m)
                 && word1_chars[i - 1] == word2_chars[j - 1]
             {
                 sub_cost = 0;
@@ -62,13 +62,13 @@ pub fn jaro_similarity(
     let m = word2.len();
     let word1_chars = char_vec(word1, case_sensitive);
     let word2_chars = char_vec(word2, case_sensitive);
-    let max_dist: i32 = (i32::max(m as i32, n as i32) / 2) - 1;
+    let max_dist = (usize::max(m, n) / 2) - 1;
     let mut matches = 0;
     let mut hash_word1 = vec![0; n];
     let mut hash_word2 = vec![0; m];
     for i in 0..n {
-        let mut j = i32::max(i as i32 - max_dist, 0);
-        while j < i32::min(i as i32 + max_dist + 1, m as i32) {
+        let mut j = i32::max(i as i32 - max_dist as i32, 0);
+        while j < usize::min(i + max_dist + 1, m) as i32 {
             if word1_chars[i] == word2_chars[j as usize] && hash_word2[j as usize] == 0 {
                 hash_word1[i] = 1;
                 hash_word2[j as usize] = 1;
@@ -88,7 +88,7 @@ pub fn jaro_similarity(
             while hash_word2[point] == 0 {
                 point += 1;
             }
-            if word1_chars[i] != word2_chars[point as usize] {
+            if word1_chars[i] != word2_chars[point] {
                 point += 1;
                 transpositions += 1;
             } else {
@@ -125,8 +125,8 @@ pub fn jaro_winkler_similarity(
     let word2_chars = char_vec(word2, case_sensitive);
     if jaro_similarity > threshold {
         let mut prefix = 0;
-        for i in 0..i32::min(word1.len() as i32, word2.len() as i32) {
-            if word1_chars[i as usize] != word2_chars[i as usize] {
+        for i in 0..usize::min(word1.len(), word2.len()) {
+            if word1_chars[i] != word2_chars[i] {
                 break;
             }
             prefix += 1;
