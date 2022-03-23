@@ -7,18 +7,23 @@ use std::cmp::min;
 /// --
 ///
 /// Calculate the Levenshtein distance between two strings.
-#[pyfunction(case_sensitive = "false", _threshold = "0.0")]
+#[pyfunction(
+    case_sensitive = "false",
+    remove_whitespace = "false",
+    _threshold = "0.0"
+)]
 pub fn levenshtein_distance(
     word1: &str,
     word2: &str,
     case_sensitive: bool,
+    remove_whitespace: bool,
     _threshold: f32,
 ) -> PyResult<f32> {
     let n = word1.len();
     let m = word2.len();
     let mut d = vec![vec![0; m + 1]; n + 1];
-    let word1_chars = char_vec(word1, case_sensitive);
-    let word2_chars = char_vec(word2, case_sensitive);
+    let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
+    let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
     for i in 0..=n {
         d[i][0] = i
     }
@@ -28,9 +33,7 @@ pub fn levenshtein_distance(
     for i in 1..=n {
         for j in 1..=m {
             let sub_cost;
-            if (i - 1 < n && j - 1 < m)
-                && word1_chars[i - 1] == word2_chars[j - 1]
-            {
+            if (i - 1 < n && j - 1 < m) && word1_chars[i - 1] == word2_chars[j - 1] {
                 sub_cost = 0;
             } else {
                 sub_cost = 1;
@@ -48,11 +51,16 @@ pub fn levenshtein_distance(
 /// --
 ///
 /// Calculate the Jaro similarity between two strings.
-#[pyfunction(case_sensitive = "false", _threshold = "0.0")]
+#[pyfunction(
+    case_sensitive = "false",
+    remove_whitespace = "false",
+    _threshold = "0.0"
+)]
 pub fn jaro_similarity(
     word1: &str,
     word2: &str,
     case_sensitive: bool,
+    remove_whitespace: bool,
     _threshold: f32,
 ) -> PyResult<f32> {
     if word1 == word2 {
@@ -60,8 +68,8 @@ pub fn jaro_similarity(
     }
     let n = word1.len();
     let m = word2.len();
-    let word1_chars = char_vec(word1, case_sensitive);
-    let word2_chars = char_vec(word2, case_sensitive);
+    let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
+    let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
     let max_dist = (usize::max(m, n) / 2) - 1;
     let mut matches = 0;
     let mut hash_word1 = vec![0; n];
@@ -108,11 +116,16 @@ pub fn jaro_similarity(
 /// --
 ///
 /// Calculate the Jaro-Winkler similarity between two strings.
-#[pyfunction(case_sensitive = "false", threshold = "0.7")]
+#[pyfunction(
+    case_sensitive = "false",
+    remove_whitespace = "false",
+    threshold = "0.7"
+)]
 pub fn jaro_winkler_similarity(
     word1: &str,
     word2: &str,
     case_sensitive: bool,
+    remove_whitespace: bool,
     threshold: f32,
 ) -> PyResult<f32> {
     if threshold < 0.0 || threshold > 1.0 {
@@ -120,9 +133,10 @@ pub fn jaro_winkler_similarity(
             "threshold must be between 0.0 and 1.0",
         ));
     }
-    let mut jaro_similarity = jaro_similarity(word1, word2, case_sensitive, threshold).unwrap();
-    let word1_chars = char_vec(word1, case_sensitive);
-    let word2_chars = char_vec(word2, case_sensitive);
+    let mut jaro_similarity =
+        jaro_similarity(word1, word2, case_sensitive, remove_whitespace, threshold).unwrap();
+    let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
+    let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
     if jaro_similarity > threshold {
         let mut prefix = 0;
         for i in 0..usize::min(word1.len(), word2.len()) {
@@ -141,15 +155,20 @@ pub fn jaro_winkler_similarity(
 /// --
 ///
 /// Calculate the Hamming distance between two strings.
-#[pyfunction(case_sensitive = "false", _threshold = "0.0")]
+#[pyfunction(
+    case_sensitive = "false",
+    remove_whitespace = "false",
+    _threshold = "0.0"
+)]
 pub fn hamming_distance(
     word1: &str,
     word2: &str,
     case_sensitive: bool,
+    remove_whitespace: bool,
     _threshold: f32,
 ) -> PyResult<f32> {
-    let word1_chars = char_vec(word1, case_sensitive);
-    let word2_chars = char_vec(word2, case_sensitive);
+    let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
+    let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
     if word1.len() != word2.len() {
         return Err(PyValueError::new_err(
             "Words must be the same length to use Hamming distance",

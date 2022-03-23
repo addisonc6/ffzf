@@ -6,19 +6,24 @@ use rayon::prelude::*;
 /// --
 ///
 /// Find the closest match to the target string in the candidates.
-#[pyfunction(algorithm = "\"levenshtein\"", case_sensitive = "false", threshold="0.0")]
+#[pyfunction(
+    algorithm = "\"levenshtein\"",
+    case_sensitive = "false",
+    remove_whitespace = "false",
+    threshold = "0.0"
+)]
 pub fn closest(
     target: &str,
     options: Vec<&str>,
     algorithm: &str,
     case_sensitive: bool,
+    remove_whitespace: bool,
     threshold: f32,
 ) -> PyResult<String> {
     if options.len() == 0 {
         return Err(PyValueError::new_err("No options provided."));
     }
-    if !is_valid_algorithm_name(algorithm)
-    {
+    if !is_valid_algorithm_name(algorithm) {
         return Err(PyValueError::new_err(format!(
             "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
             algorithm
@@ -38,7 +43,12 @@ pub fn closest(
     let mut best = "";
     let scores: Vec<(f32, &&str)> = options
         .par_iter()
-        .map(|option| (scorer(target, option, case_sensitive, threshold).unwrap(), option))
+        .map(|option| {
+            (
+                scorer(target, option, case_sensitive, remove_whitespace, threshold).unwrap(),
+                option,
+            )
+        })
         .collect::<Vec<_>>();
     if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
         || algorithm.to_uppercase().as_str() == "HAMMING"
@@ -65,13 +75,19 @@ pub fn closest(
 /// --
 ///
 /// Find the n closest matches to the target string in the candidates.
-#[pyfunction(algorithm = "\"levenshtein\"", case_sensitive = "false", threshold="0.0")]
+#[pyfunction(
+    algorithm = "\"levenshtein\"",
+    case_sensitive = "false",
+    remove_whitespace = "false",
+    threshold = "0.0"
+)]
 pub fn n_closest(
     target: &str,
     options: Vec<&str>,
     n: usize,
     algorithm: &str,
     case_sensitive: bool,
+    remove_whitespace: bool,
     threshold: f32,
 ) -> PyResult<Vec<String>> {
     if options.len() == 0 {
@@ -80,8 +96,7 @@ pub fn n_closest(
     if n < 1 {
         return Err(PyValueError::new_err("n must be greater than 0."));
     }
-    if !is_valid_algorithm_name(algorithm)
-    {
+    if !is_valid_algorithm_name(algorithm) {
         return Err(PyValueError::new_err(format!(
             "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
             algorithm
@@ -99,7 +114,12 @@ pub fn n_closest(
     }
     let mut scores = options
         .par_iter()
-        .map(|option| (option, scorer(target, option, case_sensitive, threshold).unwrap()))
+        .map(|option| {
+            (
+                option,
+                scorer(target, option, case_sensitive, remove_whitespace, threshold).unwrap(),
+            )
+        })
         .collect::<Vec<_>>();
     sort_scores(&mut scores, algorithm);
     let mut best: Vec<String> = Vec::new();
@@ -109,19 +129,24 @@ pub fn n_closest(
     return Ok(best);
 }
 
-#[pyfunction(algorithm = "\"levenshtein\"", case_sensitive = "false", threshold="0.0")]
+#[pyfunction(
+    algorithm = "\"levenshtein\"",
+    case_sensitive = "false",
+    remove_whitespace = "false",
+    threshold = "0.0"
+)]
 pub fn closest_index_pair(
     target: &str,
     text: &str,
     algorithm: &str,
     case_sensitive: bool,
+    remove_whitespace: bool,
     threshold: f32,
 ) -> PyResult<(usize, usize)> {
     if text.len() == 0 {
         return Ok((0, 0));
     }
-    if !is_valid_algorithm_name(algorithm) 
-    {
+    if !is_valid_algorithm_name(algorithm) {
         return Err(PyValueError::new_err(format!(
             "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
             algorithm
@@ -134,7 +159,14 @@ pub fn closest_index_pair(
         .map(|i| {
             (
                 i,
-                scorer(target, &text[i..i + target.len()], case_sensitive, threshold).unwrap(),
+                scorer(
+                    target,
+                    &text[i..i + target.len()],
+                    case_sensitive,
+                    remove_whitespace,
+                    threshold,
+                )
+                .unwrap(),
             )
         })
         .collect::<Vec<_>>();
@@ -147,7 +179,7 @@ fn is_valid_algorithm_name(algorithm: &str) -> bool {
         .contains(&algorithm.to_uppercase().as_str());
 }
 
-fn get_scorer(algorithm: &str) -> fn(&str, &str, bool, f32) -> PyResult<f32> {
+fn get_scorer(algorithm: &str) -> fn(&str, &str, bool, bool, f32) -> PyResult<f32> {
     return match algorithm.to_uppercase().as_str() {
         "JARO" => jaro_similarity,
         "JAROWINKLER" => jaro_winkler_similarity,
@@ -159,7 +191,7 @@ fn get_scorer(algorithm: &str) -> fn(&str, &str, bool, f32) -> PyResult<f32> {
 
 fn sort_scores<T: Send>(scores: &mut Vec<(T, f32)>, algorithm: &str) {
     if scores.len() > 1000 {
-        return par_sort_scores(scores, algorithm)
+        return par_sort_scores(scores, algorithm);
     }
     if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
         || algorithm.to_uppercase().as_str() == "HAMMING"
