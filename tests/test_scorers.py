@@ -65,5 +65,11 @@ class TestScoringFunctions(unittest.TestCase):
                              "a a string longer than a short string")
 
 
+    def test_scorer_case_sensitive(self):
+        self.assertEqual(levenshtein_distance("a", "A", case_sensitive=True), 1.0)
+        self.assertEqual(jaro_similarity("a", "A", case_sensitive=True), 0.0)
+        self.assertEqual(jaro_winkler_similarity("a", "A", case_sensitive=True), 0.0)
+        self.assertEqual(hamming_distance("a", "A", case_sensitive=True), 1.0)
+
 if __name__ == '__main__':
     unittest.main()
