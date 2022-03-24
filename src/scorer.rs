@@ -19,11 +19,11 @@ pub fn levenshtein_distance(
     remove_whitespace: bool,
     _threshold: f32,
 ) -> PyResult<f32> {
-    let n = word1.len();
-    let m = word2.len();
-    let mut d = vec![vec![0; m + 1]; n + 1];
     let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
     let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
+    let n = word1_chars.len();
+    let m = word2_chars.len();
+    let mut d = vec![vec![0; m + 1]; n + 1];
     for i in 0..=n {
         d[i][0] = i
     }
@@ -63,13 +63,13 @@ pub fn jaro_similarity(
     remove_whitespace: bool,
     _threshold: f32,
 ) -> PyResult<f32> {
-    if word1 == word2 {
-        return Ok(1.0);
-    }
-    let n = word1.len();
-    let m = word2.len();
     let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
     let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
+    if word1_chars == word2_chars {
+        return Ok(1.0);
+    }
+    let n = word1_chars.len();
+    let m = word2_chars.len();
     let max_dist = (i32::max(m as i32, n as i32) / 2) - 1;
     let mut matches = 0;
     let mut hash_word1 = vec![0; n];
@@ -169,7 +169,7 @@ pub fn hamming_distance(
 ) -> PyResult<f32> {
     let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
     let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
-    if word1.len() != word2.len() {
+    if word1_chars.len() != word2_chars.len() {
         return Err(PyValueError::new_err(
             "Words must be the same length to use Hamming distance",
         ));

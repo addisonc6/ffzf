@@ -71,5 +71,11 @@ class TestScoringFunctions(unittest.TestCase):
         self.assertEqual(jaro_winkler_similarity("a", "A", case_sensitive=True), 0.0)
         self.assertEqual(hamming_distance("a", "A", case_sensitive=True), 1.0)
 
+    def test_scorer_remove_whitespac(self):
+        self.assertEqual(levenshtein_distance(" \t\na  ", "A", remove_whitespace=True), 0.0)
+        self.assertEqual(jaro_similarity(" \t\na  ", "A", remove_whitespace=True), 1.0)
+        self.assertEqual(jaro_winkler_similarity(" \t\na  ", "A", remove_whitespace=True), 1.0)
+        self.assertEqual(hamming_distance(" \t\na  ", "A", remove_whitespace=True), 0.0)
+
 if __name__ == '__main__':
     unittest.main()
