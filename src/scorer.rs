@@ -76,7 +76,7 @@ pub fn jaro_similarity(
     let mut hash_word2 = vec![0; m];
     for i in 0..n {
         let mut j = i32::max(i as i32 - max_dist, 0);
-        while j < usize::min(i + max_dist as usize + 1, m) as i32 {
+        while j < i32::min(i as i32 + max_dist + 1, m as i32) {
             if word1_chars[i] == word2_chars[j as usize] && hash_word2[j as usize] == 0 {
                 hash_word1[i] = 1;
                 hash_word2[j as usize] = 1;
