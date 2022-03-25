@@ -1,6 +1,7 @@
 use crate::scorer::*;
 use pyo3::{exceptions::PyValueError, prelude::*};
 use rayon::prelude::*;
+use ordered_float::OrderedFloat;
 
 /// closest(target, candidates, /, algorithm='levenshtein', case_sensitive=False)
 /// --
@@ -39,36 +40,35 @@ pub fn closest(
             }
         }
     }
-    let mut score = f32::MAX;
-    let mut best = "";
-    let scores: Vec<(f32, &&str)> = options
-        .par_iter()
-        .map(|option| {
-            (
-                scorer(target, option, case_sensitive, remove_whitespace, threshold).unwrap(),
-                option,
+    let closest_option;
+    if algorithm.to_uppercase().as_str() == "LEVENSHTEIN" || algorithm.to_uppercase().as_str() == "HAMMING" {
+        closest_option = options.into_par_iter().min_by_key(|option| {
+            OrderedFloat(
+                scorer(
+                    target,
+                    option,
+                    case_sensitive,
+                    remove_whitespace,
+                    threshold,
+                )
+                .unwrap(),
             )
-        })
-        .collect::<Vec<_>>();
-    if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
-        || algorithm.to_uppercase().as_str() == "HAMMING"
-    {
-        for (s, option) in scores {
-            if s < score {
-                score = s;
-                best = option;
-            }
-        }
+        }).unwrap().to_string();
     } else {
-        score = f32::MIN;
-        for (s, option) in scores {
-            if s > score {
-                score = s;
-                best = option;
-            }
-        }
+        closest_option = options.into_par_iter().max_by_key(|option| {
+            OrderedFloat(
+                scorer(
+                    target,
+                    option,
+                    case_sensitive,
+                    remove_whitespace,
+                    threshold,
+                )
+                .unwrap(),
+            )
+        }).unwrap().to_string();
     }
-    return Ok(best.to_owned());
+    Ok(closest_option)
 }
 
 /// n_closest(target, candidates, n, /, algorithm='levenshtein', case_sensitive=False)
