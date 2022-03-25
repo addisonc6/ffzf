@@ -1,7 +1,7 @@
 use crate::scorer::*;
+use ordered_float::OrderedFloat;
 use pyo3::{exceptions::PyValueError, prelude::*};
 use rayon::prelude::*;
-use ordered_float::OrderedFloat;
 
 /// closest(target, candidates, /, algorithm='levenshtein', case_sensitive=False)
 /// --
@@ -41,32 +41,40 @@ pub fn closest(
         }
     }
     let closest_option;
-    if algorithm.to_uppercase().as_str() == "LEVENSHTEIN" || algorithm.to_uppercase().as_str() == "HAMMING" {
-        closest_option = options.into_par_iter().min_by_key(|option| {
-            OrderedFloat(
-                scorer(
-                    target,
-                    option,
-                    case_sensitive,
-                    remove_whitespace,
-                    threshold,
+    if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
+        || algorithm.to_uppercase().as_str() == "HAMMING"
+    {
+        closest_option = options
+            .into_par_iter()
+            .min_by_key(|option| {
+                OrderedFloat(
+                    scorer(target, option, case_sensitive, remove_whitespace, threshold).expect(
+                        format!(
+                            "Could not calcuate score with algorithm {} between {} and {}",
+                            algorithm, target, option
+                        )
+                        .as_str(),
+                    ),
                 )
-                .unwrap(),
-            )
-        }).unwrap().to_string();
+            })
+            .expect("No scored values were present.")
+            .to_string();
     } else {
-        closest_option = options.into_par_iter().max_by_key(|option| {
-            OrderedFloat(
-                scorer(
-                    target,
-                    option,
-                    case_sensitive,
-                    remove_whitespace,
-                    threshold,
+        closest_option = options
+            .into_par_iter()
+            .max_by_key(|option| {
+                OrderedFloat(
+                    scorer(target, option, case_sensitive, remove_whitespace, threshold).expect(
+                        format!(
+                            "Could not calcuate score with algorithm {} between {} and {}",
+                            algorithm, target, option
+                        )
+                        .as_str(),
+                    ),
                 )
-                .unwrap(),
-            )
-        }).unwrap().to_string();
+            })
+            .expect("No scored values were present.")
+            .to_string();
     }
     Ok(closest_option)
 }
@@ -117,7 +125,13 @@ pub fn n_closest(
         .map(|option| {
             (
                 option,
-                scorer(target, option, case_sensitive, remove_whitespace, threshold).unwrap(),
+                scorer(target, option, case_sensitive, remove_whitespace, threshold).expect(
+                    format!(
+                        "Could not calcuate score with algorithm {} between {} and {}",
+                        algorithm, target, option
+                    )
+                    .as_str(),
+                ),
             )
         })
         .collect::<Vec<_>>();
@@ -166,7 +180,15 @@ pub fn closest_index_pair(
                     remove_whitespace,
                     threshold,
                 )
-                .unwrap(),
+                .expect(
+                    format!(
+                        "Could not calcuate score with algorithm {} between {} and {}",
+                        algorithm,
+                        target,
+                        &text[i..i + target.len()]
+                    )
+                    .as_str(),
+                ),
             )
         })
         .collect::<Vec<_>>();
@@ -196,9 +218,9 @@ fn sort_scores<T: Send>(scores: &mut Vec<(T, f32)>, algorithm: &str) {
     if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
         || algorithm.to_uppercase().as_str() == "HAMMING"
     {
-        scores.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+        scores.sort_by(|a, b| a.1.partial_cmp(&b.1).expect("Could not compare scores."));
     } else {
-        scores.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+        scores.sort_by(|a, b| b.1.partial_cmp(&a.1).expect("Could not compare scores."));
     }
 }
 
@@ -206,8 +228,10 @@ fn par_sort_scores<T: Send>(scores: &mut Vec<(T, f32)>, algorithm: &str) {
     if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
         || algorithm.to_uppercase().as_str() == "HAMMING"
     {
-        scores.par_sort_unstable_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+        scores
+            .par_sort_unstable_by(|a, b| a.1.partial_cmp(&b.1).expect("Could not compare scores."));
     } else {
-        scores.par_sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+        scores
+            .par_sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).expect("Could not compare scores."));
     }
 }

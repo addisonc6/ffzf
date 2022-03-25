@@ -134,7 +134,8 @@ pub fn jaro_winkler_similarity(
         ));
     }
     let mut jaro_similarity =
-        jaro_similarity(word1, word2, case_sensitive, remove_whitespace, threshold).unwrap();
+        jaro_similarity(word1, word2, case_sensitive, remove_whitespace, threshold)
+            .expect("Failed to calculate Jaro similarity.");
     let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
     let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
     if jaro_similarity > threshold {
