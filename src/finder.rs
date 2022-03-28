@@ -139,7 +139,7 @@ pub fn n_closest(
         })
         .collect::<Vec<_>>();
     sort_scores(&mut scores, algorithm);
-    let mut best: Vec<String> = Vec::new();
+    let mut best = Vec::with_capacity(n);
     for (option, _) in scores.iter().take(n) {
         best.push(String::from(**option));
     }
