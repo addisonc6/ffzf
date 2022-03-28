@@ -9,15 +9,13 @@ use std::cmp::min;
 /// Calculate the Levenshtein distance between two strings.
 #[pyfunction(
     case_sensitive = "false",
-    remove_whitespace = "false",
-    _threshold = "0.0"
+    remove_whitespace = "false"
 )]
 pub fn levenshtein_distance(
     word1: &str,
     word2: &str,
     case_sensitive: bool,
-    remove_whitespace: bool,
-    _threshold: f32,
+    remove_whitespace: bool
 ) -> PyResult<f32> {
     let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
     let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
@@ -53,15 +51,13 @@ pub fn levenshtein_distance(
 /// Calculate the Jaro similarity between two strings.
 #[pyfunction(
     case_sensitive = "false",
-    remove_whitespace = "false",
-    _threshold = "0.0"
+    remove_whitespace = "false"
 )]
 pub fn jaro_similarity(
     word1: &str,
     word2: &str,
     case_sensitive: bool,
-    remove_whitespace: bool,
-    _threshold: f32,
+    remove_whitespace: bool
 ) -> PyResult<f32> {
     let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
     let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
@@ -134,7 +130,7 @@ pub fn jaro_winkler_similarity(
         ));
     }
     let mut jaro_similarity =
-        jaro_similarity(word1, word2, case_sensitive, remove_whitespace, threshold)
+        jaro_similarity(word1, word2, case_sensitive, remove_whitespace)
             .expect("Failed to calculate Jaro similarity.");
     let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
     let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
@@ -159,14 +155,12 @@ pub fn jaro_winkler_similarity(
 #[pyfunction(
     case_sensitive = "false",
     remove_whitespace = "false",
-    _threshold = "0.0"
 )]
 pub fn hamming_distance(
     word1: &str,
     word2: &str,
     case_sensitive: bool,
-    remove_whitespace: bool,
-    _threshold: f32,
+    remove_whitespace: bool
 ) -> PyResult<f32> {
     let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
     let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
