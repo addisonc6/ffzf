@@ -1,4 +1,5 @@
 mod scorer;
+mod internal_scorer;
 mod finder;
 mod utils;
 

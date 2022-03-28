@@ -1,4 +1,5 @@
-use crate::scorer::*;
+use crate::internal_scorer::*;
+use crate::utils::char_vec;
 use ordered_float::OrderedFloat;
 use pyo3::{exceptions::PyValueError, prelude::*};
 use rayon::prelude::*;
@@ -41,6 +42,7 @@ pub fn closest(
         }
     }
     let closest_option;
+    let processed_target = char_vec(target, case_sensitive, remove_whitespace);
     if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
         || algorithm.to_uppercase().as_str() == "HAMMING"
     {
@@ -48,7 +50,7 @@ pub fn closest(
             .into_par_iter()
             .min_by_key(|option| {
                 OrderedFloat(
-                    scorer(target, option, case_sensitive, remove_whitespace, threshold).expect(
+                    scorer(option, &processed_target, case_sensitive, remove_whitespace, threshold).expect(
                         format!(
                             "Could not calcuate score with algorithm {} between {} and {}",
                             algorithm, target, option
@@ -64,7 +66,7 @@ pub fn closest(
             .into_par_iter()
             .max_by_key(|option| {
                 OrderedFloat(
-                    scorer(target, option, case_sensitive, remove_whitespace, threshold).expect(
+                    scorer(option, &processed_target, case_sensitive, remove_whitespace, threshold).expect(
                         format!(
                             "Could not calcuate score with algorithm {} between {} and {}",
                             algorithm, target, option
@@ -120,12 +122,13 @@ pub fn n_closest(
             }
         }
     }
+    let processed_target = char_vec(target, case_sensitive, remove_whitespace);
     let mut scores = options
         .par_iter()
         .map(|option| {
             (
                 option,
-                scorer(target, option, case_sensitive, remove_whitespace, threshold).expect(
+                scorer(option, &processed_target, case_sensitive, remove_whitespace, threshold).expect(
                     format!(
                         "Could not calcuate score with algorithm {} between {} and {}",
                         algorithm, target, option
@@ -167,15 +170,15 @@ pub fn closest_index_pair(
         )));
     }
     let scorer = get_scorer(algorithm);
-
+    let processed_target = char_vec(target, case_sensitive, remove_whitespace);
     let mut scores: Vec<(usize, f32)> = (0..text.len() - target.len() + 1)
         .into_par_iter()
         .map(|i| {
             (
                 i,
                 scorer(
-                    target,
                     &text[i..i + target.len()],
+                    &processed_target,
                     case_sensitive,
                     remove_whitespace,
                     threshold,
@@ -201,12 +204,12 @@ fn is_valid_algorithm_name(algorithm: &str) -> bool {
         .contains(&algorithm.to_uppercase().as_str());
 }
 
-fn get_scorer(algorithm: &str) -> fn(&str, &str, bool, bool, f32) -> PyResult<f32> {
+fn get_scorer(algorithm: &str) -> fn(&str, &Vec<char>, bool, bool, f32) -> PyResult<f32> {
     return match algorithm.to_uppercase().as_str() {
-        "JARO" => jaro_similarity,
-        "JAROWINKLER" => jaro_winkler_similarity,
-        "HAMMING" => hamming_distance,
-        "LEVENSHTEIN" => levenshtein_distance,
+        "JARO" => jaro_similarity_target_preprocessed,
+        "JAROWINKLER" => jaro_winkler_similarity_target_preprocessed,
+        "HAMMING" => hamming_distance_target_preprocessed,
+        "LEVENSHTEIN" => levenshtein_distance_target_preprocessed,
         _ => unreachable!(),
     };
 }
