@@ -17,3 +17,4 @@ ordered-float = "2.10.0"
 [profile.release]
 lto = "fat"
 codegen-units = 1
+panic = "abort"
