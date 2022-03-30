@@ -16,7 +16,7 @@ pub fn levenshtein_distance(
     word2: &str,
     case_sensitive: bool,
     remove_whitespace: bool
-) -> PyResult<f32> {
+) -> PyResult<i32> {
     let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
     let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
     let n = word1_chars.len();
@@ -42,7 +42,7 @@ pub fn levenshtein_distance(
             )
         }
     }
-    Ok(d[n][m] as f32)
+    Ok(d[n][m] as i32)
 }
 
 /// jaro_similarity(a, b, /, case_sensitive=False)
@@ -161,7 +161,7 @@ pub fn hamming_distance(
     word2: &str,
     case_sensitive: bool,
     remove_whitespace: bool
-) -> PyResult<f32> {
+) -> PyResult<i32> {
     let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
     let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
     if word1_chars.len() != word2_chars.len() {
@@ -175,5 +175,5 @@ pub fn hamming_distance(
             distance += 1;
         }
     }
-    Ok(distance as f32)
+    Ok(distance)
 }
