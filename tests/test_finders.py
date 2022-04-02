@@ -1,6 +1,6 @@
 import unittest
 
-from ffzf import closest, n_closest, closest_index_pair
+from ffzf import closest, n_closest, closest_index_pair, closest_with_score, n_closest_with_score
 
 
 class TestFindingFunctions(unittest.TestCase):
@@ -57,6 +57,12 @@ class TestFindingFunctions(unittest.TestCase):
         with self.assertRaises(ValueError):
             closest_index_pair(
                 "travel", "gravel gambit gated", algorithm="unknown")
+
+    def test_closest_with_score(self):
+        self.assertEqual(closest_with_score("euphoria", ["excitement", "elation", "joyful"]), ("elation", 7))
+    
+    def test_n_closest_with_score(self):
+        self.assertEqual(n_closest_with_score("euphoria", ["excitement", "elation", "joyful"], n=2), [("elation", 7), ("joyful", 8)])
 
 
 if __name__ == '__main__':
