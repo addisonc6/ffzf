@@ -30,6 +30,10 @@ best_match = closest("Hello", ["harps", "apples", "jello"], case_sensitive=True)
 
 # Remove whitespace (default is to keep the whitespace in strings)
 dist = levenshtein_distance("hello world", "helloworld", remove_whitespace=True)
+
+# Return scores with closest results
+from ffzf import n_closest_with_score
+best_matches = n_closest_with_score("hello", ["harps", "apples", "jello"], 2)
 ```
 
 # Supported Algorithms
