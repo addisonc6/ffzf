@@ -61,6 +61,48 @@ def closest_index_pair(
     """
     ...
 
+def closest_with_score(
+    target: str, 
+    candidates: list[str], 
+    algorithm: str = "levenshtein", 
+    case_sensitive: bool = False, 
+    remove_whitespace: bool = False) -> tuple[str, float]:
+    """
+    Find the closest match to the target string in the list of candidates and the similarity/difference score.
+    :param target: The target string to find a match for.
+    :param candidates: The list of strings to find a match in.
+    :param algorithm: The algorithm to use for finding the closest match. Options are:
+        - "levenshtein"
+        - "jaro"
+        - "jarowinkler"
+        - "hamming"
+    :param case_sensitive: Whether or not to use case sensitivity when finding the closest match.
+    :param remove_whitespace: Whether or not to remove whitespace when finding the closest match.
+    """
+
+def n_closest_with_score(
+    target: str, 
+    candidates: list[str], 
+    n: int, 
+    algorithm: str = "levenshtein", 
+    case_sensitive: bool = False, 
+    remove_whitespace: bool = False) -> list[tuple[str, float]]:
+    """
+    Find the n closest matches to the target string in the list of candidates and the similarity/difference score.
+    :param target: The target string to find a match for.
+    :param candidates: The list of strings to find a match in.
+    :param n: The number of closest matches to return.
+    :param algorithm: The algorithm to use for finding the closest match. Options are:
+        - "levenshtein"
+        - "jaro"
+        - "jarowinkler"
+        - "hamming"
+    :param case_sensitive: Whether or not to use case sensitivity when finding the closest matches.
+    :param remove_whitespace: Whether or not to remove whitespace when finding the closest matches.
+    """
+    ...
+    
+    ...
 def levenshtein_distance(
     a: str, 
     b: str, 
