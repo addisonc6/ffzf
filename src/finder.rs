@@ -191,6 +191,12 @@ pub fn n_closest(
     if n < 1 {
         return Err(PyValueError::new_err("n must be greater than 0."));
     }
+    else if n > options.len() {
+        return Err(PyValueError::new_err(format!(
+            "n must be less than or equal to the number of options: {}",
+            options.len()
+        )));
+    }
     if !is_valid_algorithm_name(algorithm) {
         return Err(PyValueError::new_err(format!(
             "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
@@ -251,6 +257,12 @@ pub fn n_closest_with_score(
     }
     if n < 1 {
         return Err(PyValueError::new_err("n must be greater than 0."));
+    }
+    else if n > options.len() {
+        return Err(PyValueError::new_err(format!(
+            "n must be less than or equal to the number of options: {}",
+            options.len()
+        )));
     }
     if !is_valid_algorithm_name(algorithm) {
         return Err(PyValueError::new_err(format!(

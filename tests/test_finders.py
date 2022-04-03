@@ -43,6 +43,8 @@ class TestFindingFunctions(unittest.TestCase):
             n_closest("travel", [], n=2)
         with self.assertRaises(ValueError):
             n_closest("travel", ["train", "tracks", "towered"], n=0)
+        with self.assertRaises(ValueError):
+            n_closest("travel", ["train", "tracks", "towered"], n=10)
 
     def test_closest_index_pair(self):
         self.assertEqual(closest_index_pair("hello", "hello world"), (0, 5))
