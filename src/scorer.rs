@@ -136,7 +136,7 @@ pub fn jaro_winkler_similarity(
     let word2_chars = char_vec(word2, case_sensitive, remove_whitespace);
     if jaro_similarity > threshold {
         let mut prefix = 0;
-        for i in 0..usize::min(word1.len(), word2.len()) {
+        for i in 0..usize::min(word1_chars.len(), word2_chars.len()) {
             if word1_chars[i] != word2_chars[i] {
                 break;
             }

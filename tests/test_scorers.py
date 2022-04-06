@@ -60,6 +60,7 @@ class TestScoringFunctions(unittest.TestCase):
         self.assertEqual(hamming_distance("ask", "ask"), 0.0)
         self.assertEqual(hamming_distance("men", "hen"), 1.0)
         self.assertEqual(hamming_distance("hello world", "hey there!!"), 9.0)
+        
         with self.assertRaises(ValueError):
             hamming_distance("a short string",
                              "a a string longer than a short string")
@@ -77,5 +78,24 @@ class TestScoringFunctions(unittest.TestCase):
         self.assertEqual(jaro_winkler_similarity(" \t\na  ", "A", remove_whitespace=True), 1.0)
         self.assertEqual(hamming_distance(" \t\na  ", "A", remove_whitespace=True), 0.0)
 
+    def test_scorers_non_ascii(self):
+        self.assertEqual(levenshtein_distance("ケーキ", "ケーキ"), 0)
+        self.assertEqual(jaro_similarity("ケーキ", "ケーキ"), 1.0)
+        self.assertEqual(jaro_winkler_similarity("ケーキ", "ケーキ"), 1.0)
+        self.assertEqual(hamming_distance("ケーキ", "ケーキ"), 0)
+        self.assertEqual(levenshtein_distance("片付け", "掃討", case_sensitive=True), 3)
+        self.assertEqual(jaro_similarity("片付け", "掃討", case_sensitive=True), 0.0)
+        self.assertEqual(jaro_winkler_similarity("片付け", "掃討", case_sensitive=True), 0.0)
+        
+        with self.assertRaises(ValueError):
+            hamming_distance("片付け", "掃討", case_sensitive=True)
+
+        self.assertEqual(levenshtein_distance("تنظيف", "清掃", case_sensitive=True), 5)
+        self.assertEqual(jaro_similarity("تنظيف", "การทำความสะอาด", case_sensitive=True), 0.0)
+        self.assertEqual(jaro_winkler_similarity("تنظيف", "การทำความสะอาด", case_sensitive=True), 0.0)
+        self.assertEqual(hamming_distance("सरसफार्इ गर्दै", "การทำความสะอาด", case_sensitive=True), 14)
+        self.assertEqual(levenshtein_distance("सरसफार्इ गर्दै", "सरसफार्इ गर्दै", case_sensitive=True), 0)
+        self.assertEqual(jaro_similarity("सरसफार्इ गर्दै", "सरसफार्इ   गर्दै", remove_whitespace=True), 1.0)
+        
 if __name__ == '__main__':
     unittest.main()
