@@ -379,9 +379,9 @@ fn sort_scores<T: Send>(scores: &mut Vec<(T, f32)>, algorithm: &str) {
     if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
         || algorithm.to_uppercase().as_str() == "HAMMING"
     {
-        scores.sort_by(|a, b| a.1.partial_cmp(&b.1).expect("Could not compare scores."));
+        scores.sort_unstable_by(|a, b| a.1.partial_cmp(&b.1).expect("Could not compare scores."));
     } else {
-        scores.sort_by(|a, b| b.1.partial_cmp(&a.1).expect("Could not compare scores."));
+        scores.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).expect("Could not compare scores."));
     }
 }
 
