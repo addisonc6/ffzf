@@ -41,5 +41,3 @@ best_matches = n_closest_with_score("hello", ["harps", "apples", "jello"], 2)
 - Jaro Similarity ("JARO")
 - Jaro-Winkler Similarity ("JAROWINKLER")
 - Hamming Distance ("HAMMING")
-<br><br><br>
-![workflow](https://github.com/addisonc6/ffzf/actions/workflows/CI.yml/badge.svg)
