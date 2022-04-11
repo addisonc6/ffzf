@@ -14,7 +14,7 @@ jobs:
           python -m venv venv
           source venv/bin/activate
           pip install maturin python-Levenshtein fuzzywuzzy rapidfuzz matplotlib tqdm
-          maturin develop
+          maturin develop --release
           python benches/bench.py
       - name: Save Graphs
         uses: actions/upload-artifact@v3
