@@ -1,0 +1,26 @@
+name: Run Benchmarks
+
+on:
+  push:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Run Tests
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install maturin python-Levenshtein fuzzywuzzy rapidfuzz matplotlib tqdm
+          maturin develop
+          python benches/bench.py
+      - name: Save graphs
+      - uses: actions/upload-artifact@v3
+        with:
+          name: benchmarking_graphs
+          path: |
+            closest_benchmark.png
+            10_closest_benchmark.png
+            100_closest_benchmark.png
