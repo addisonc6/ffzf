@@ -9,15 +9,15 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
-      - name: Run Tests
+      - name: Run Benchmarks
         run: |
           python -m venv venv
           source venv/bin/activate
           pip install maturin python-Levenshtein fuzzywuzzy rapidfuzz matplotlib tqdm
           maturin develop
           python benches/bench.py
-      - name: Save graphs
-      - uses: actions/upload-artifact@v3
+      - name: Save Graphs
+        uses: actions/upload-artifact@v3
         with:
           name: benchmarking_graphs
           path: |
