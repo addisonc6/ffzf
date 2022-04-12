@@ -30,7 +30,7 @@ def generate_sample_words():
 sample_words = generate_sample_words()
 
 closest_scorers = [
-    (partial(closest_with_score, remvoe_whitespace=True), "ffzf"),
+    (partial(closest_with_score, remove_whitespace=True), "ffzf"),
     (partial(rapidfuzz_process.extractOne,
      scorer=rapidfuzz.string_metric.levenshtein), "rapidfuzz"),
     (fuzzywuzzy_process.extractOne, "fuzzywuzzy")
