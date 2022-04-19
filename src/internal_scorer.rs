@@ -182,11 +182,6 @@ pub fn hamming_distance_target_preprocessed(
     _threshold: f32,
 ) -> PyResult<f32> {
     let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
-    if word1_chars.len() != word2_chars.len() {
-        return Err(PyValueError::new_err(
-            "Words must be the same length to use Hamming distance",
-        ));
-    }
     let mut distance = 0;
     for (i, j) in word1_chars.iter().zip(word2_chars.iter()) {
         if i != j {
