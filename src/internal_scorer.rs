@@ -1,6 +1,4 @@
-use std::cmp::min;
-
-use pyo3::{PyResult, exceptions::PyValueError};
+use pyo3::{exceptions::PyValueError, PyResult};
 
 use crate::utils::char_vec;
 
@@ -14,28 +12,30 @@ pub fn levenshtein_distance_target_preprocessed(
     let word1_chars = char_vec(word1, case_sensitive, remove_whitespace);
     let n = word1_chars.len();
     let m = word2_chars.len();
-    let mut d = vec![vec![0; m + 1]; n + 1];
-    for i in 0..=n {
-        d[i][0] = i;
-    }
-    for j in 0..=m {
-        d[0][j] = j;
+    let mut d = vec![0; m + 1];
+    for i in 0..=m {
+        d[i] = i;
     }
     for i in 1..=n {
+        let mut prev_diag = d[0];
+        d[0] += 1;
+        let mut prev_col = d[0];
+        let src_chr = word1_chars[i - 1];
         for j in 1..=m {
-            let sub_cost;
-            if (i - 1 < n && j - 1 < m) && word1_chars[i - 1] == word2_chars[j - 1] {
-                sub_cost = 0;
-            } else {
-                sub_cost = 1;
+            let mut local_cost = prev_diag;
+            let del_cost = d[j];
+            if src_chr != word2_chars[j - 1] {
+                local_cost = usize::min(local_cost, prev_col);
+                local_cost = usize::min(local_cost, del_cost);
+                local_cost += 1;
             }
-            d[i][j] = min(
-                d[i - 1][j] + 1,
-                min(d[i][j - 1] + 1, d[i - 1][j - 1] + sub_cost),
-            );
+            prev_col = local_cost;
+            d[j] = local_cost;
+            prev_diag = del_cost;
         }
     }
-    Ok(d[n][m] as f32)
+
+    return Ok(d[m] as f32);
 }
 
 pub fn jaro_similarity_target_preprocessed(
@@ -95,7 +95,7 @@ pub fn jaro_similarity_target_preprocessed(
 
 pub fn jaro_similarity_target_matched_preprocessed(
     word1_chars: &Vec<char>,
-    word2_chars: &Vec<char>
+    word2_chars: &Vec<char>,
 ) -> PyResult<f32> {
     if word1_chars == word2_chars {
         return Ok(1.0);
