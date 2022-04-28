@@ -1,8 +1,10 @@
 # ffzf
-Fast fuzzy string matching for Python. 
+Fast fuzzy string matching for Python.
+<br>
+Written in Rust using [PyO3](https://pyo3.rs).
 
 # Installation 
-```
+```bash
 pip install ffzf
 ```
 
