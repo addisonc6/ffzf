@@ -22,17 +22,18 @@ pub fn closest(
     remove_whitespace: bool,
     threshold: f32,
 ) -> PyResult<String> {
+    let algorithm_name = algorithm.to_uppercase();
     if options.len() == 0 {
         return Err(PyValueError::new_err("No options provided."));
     }
-    if !is_valid_algorithm_name(algorithm) {
+    if !is_valid_algorithm_name(&algorithm_name) {
         return Err(PyValueError::new_err(format!(
             "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
-            algorithm
+            algorithm_name
         )));
     }
-    let scorer = get_scorer(algorithm);
-    if algorithm.to_uppercase().as_str() == "HAMMING" {
+    let scorer = get_scorer(&algorithm_name);
+    if algorithm_name == "HAMMING" {
         for option in &options {
             if option.len() != target.len() {
                 return Err(PyValueError::new_err(
@@ -43,8 +44,8 @@ pub fn closest(
     }
     let closest_option;
     let processed_target = char_vec(target, case_sensitive, remove_whitespace);
-    if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
-        || algorithm.to_uppercase().as_str() == "HAMMING"
+    if algorithm_name == "LEVENSHTEIN"
+        || algorithm_name == "HAMMING"
     {
         closest_option = options
             .into_par_iter()
@@ -53,7 +54,7 @@ pub fn closest(
                     scorer(option, &processed_target, case_sensitive, remove_whitespace, threshold).expect(
                         format!(
                             "Could not calcuate score with algorithm {} between {} and {}",
-                            algorithm, target, option
+                            algorithm_name, target, option
                         )
                         .as_str(),
                     ),
@@ -69,7 +70,7 @@ pub fn closest(
                     scorer(option, &processed_target, case_sensitive, remove_whitespace, threshold).expect(
                         format!(
                             "Could not calcuate score with algorithm {} between {} and {}",
-                            algorithm, target, option
+                            algorithm_name, target, option
                         )
                         .as_str(),
                     ),
@@ -95,17 +96,18 @@ pub fn closest_with_score(
     remove_whitespace: bool,
     threshold: f32,
 ) -> PyResult<(String, f32)> {
+    let algorithm_name = algorithm.to_uppercase();
     if options.len() == 0 {
         return Err(PyValueError::new_err("No options provided."));
     }
-    if !is_valid_algorithm_name(algorithm) {
+    if !is_valid_algorithm_name(&algorithm_name) {
         return Err(PyValueError::new_err(format!(
             "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
-            algorithm
+            algorithm_name
         )));
     }
-    let scorer = get_scorer(algorithm);
-    if algorithm.to_uppercase().as_str() == "HAMMING" {
+    let scorer = get_scorer(&algorithm_name);
+    if algorithm_name == "HAMMING" {
         for option in &options {
             if option.len() != target.len() {
                 return Err(PyValueError::new_err(
@@ -116,8 +118,8 @@ pub fn closest_with_score(
     }
     let closest_option;
     let processed_target = char_vec(target, case_sensitive, remove_whitespace);
-    if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
-        || algorithm.to_uppercase().as_str() == "HAMMING"
+    if algorithm_name == "LEVENSHTEIN"
+        || algorithm_name == "HAMMING"
     {
         closest_option = options
             .into_par_iter()
@@ -126,7 +128,7 @@ pub fn closest_with_score(
                     scorer(option, &processed_target, case_sensitive, remove_whitespace, threshold).expect(
                         format!(
                             "Could not calcuate score with algorithm {} between {} and {}",
-                            algorithm, target, option
+                            algorithm_name, target, option
                         )
                         .as_str(),
                     ),
@@ -142,7 +144,7 @@ pub fn closest_with_score(
                     scorer(option, &processed_target, case_sensitive, remove_whitespace, threshold).expect(
                         format!(
                             "Could not calcuate score with algorithm {} between {} and {}",
-                            algorithm, target, option
+                            algorithm_name, target, option
                         )
                         .as_str(),
                     ),
@@ -160,7 +162,7 @@ pub fn closest_with_score(
     ).expect(
         format!(
             "Could not calcuate score with algorithm {} between {} and {}",
-            algorithm, target, closest_option
+            algorithm_name, target, closest_option
         )
         .as_str(),
     )))
@@ -185,6 +187,7 @@ pub fn n_closest(
     remove_whitespace: bool,
     threshold: f32,
 ) -> PyResult<Vec<String>> {
+    let algorithm_name = algorithm.to_uppercase();
     if options.len() == 0 {
         return Err(PyValueError::new_err("No options provided."));
     }
@@ -197,14 +200,14 @@ pub fn n_closest(
             options.len()
         )));
     }
-    if !is_valid_algorithm_name(algorithm) {
+    if !is_valid_algorithm_name(&algorithm_name) {
         return Err(PyValueError::new_err(format!(
             "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
-            algorithm
+            algorithm_name
         )));
     }
-    let scorer = get_scorer(algorithm);
-    if algorithm.to_uppercase().as_str() == "HAMMING" {
+    let scorer = get_scorer(&algorithm_name);
+    if algorithm_name == "HAMMING" {
         for option in &options {
             if option.len() != target.len() {
                 return Err(PyValueError::new_err(
@@ -222,14 +225,14 @@ pub fn n_closest(
                 scorer(option, &processed_target, case_sensitive, remove_whitespace, threshold).expect(
                     format!(
                         "Could not calcuate score with algorithm {} between {} and {}",
-                        algorithm, target, option
+                        algorithm_name, target, option
                     )
                     .as_str(),
                 ),
             )
         })
         .collect::<Vec<_>>();
-    sort_scores(&mut scores, algorithm);
+    sort_scores(&mut scores, &algorithm_name);
     let mut best = Vec::with_capacity(n);
     for (option, _) in scores.iter().take(n) {
         best.push(String::from(**option));
@@ -252,6 +255,7 @@ pub fn n_closest_with_score(
     remove_whitespace: bool,
     threshold: f32,
 ) -> PyResult<Vec<(String, f32)>> {
+    let algorithm_name = algorithm.to_uppercase();
     if options.len() == 0 {
         return Err(PyValueError::new_err("No options provided."));
     }
@@ -264,14 +268,14 @@ pub fn n_closest_with_score(
             options.len()
         )));
     }
-    if !is_valid_algorithm_name(algorithm) {
+    if !is_valid_algorithm_name(&algorithm_name) {
         return Err(PyValueError::new_err(format!(
             "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
-            algorithm
+            algorithm_name
         )));
     }
-    let scorer = get_scorer(algorithm);
-    if algorithm.to_uppercase().as_str() == "HAMMING" {
+    let scorer = get_scorer(&algorithm_name);
+    if algorithm_name == "HAMMING" {
         for option in &options {
             if option.len() != target.len() {
                 return Err(PyValueError::new_err(
@@ -289,14 +293,14 @@ pub fn n_closest_with_score(
                 scorer(option, &processed_target, case_sensitive, remove_whitespace, threshold).expect(
                     format!(
                         "Could not calcuate score with algorithm {} between {} and {}",
-                        algorithm, target, option
+                        algorithm_name, target, option
                     )
                     .as_str(),
                 ),
             )
         })
         .collect::<Vec<_>>();
-    sort_scores(&mut scores, algorithm);
+    sort_scores(&mut scores, &algorithm_name);
     let mut best = Vec::with_capacity(n);
     for (option, score) in scores.iter().take(n) {
         best.push((String::from(**option), *score));
@@ -318,16 +322,17 @@ pub fn closest_index_pair(
     remove_whitespace: bool,
     threshold: f32,
 ) -> PyResult<(usize, usize)> {
+    let algorithm_name = algorithm.to_uppercase();
     if text.len() == 0 {
         return Ok((0, 0));
     }
-    if !is_valid_algorithm_name(algorithm) {
+    if !is_valid_algorithm_name(&algorithm_name) {
         return Err(PyValueError::new_err(format!(
             "Unsupported algorithm: {}. Supported algorithms are: LEVENSHTEIN, JARO, JAROWINKLER, HAMMING",
-            algorithm
+            algorithm_name
         )));
     }
-    let scorer = get_scorer(algorithm);
+    let scorer = get_scorer(&algorithm_name);
     let processed_target = char_vec(target, case_sensitive, remove_whitespace);
     let mut scores: Vec<(usize, f32)> = (0..text.len() - target.len() + 1)
         .into_par_iter()
@@ -344,7 +349,7 @@ pub fn closest_index_pair(
                 .expect(
                     format!(
                         "Could not calcuate score with algorithm {} between {} and {}",
-                        algorithm,
+                        algorithm_name,
                         target,
                         &text[i..i + target.len()]
                     )
@@ -353,17 +358,17 @@ pub fn closest_index_pair(
             )
         })
         .collect::<Vec<_>>();
-    sort_scores(&mut scores, algorithm);
+    sort_scores(&mut scores, &algorithm_name);
     return Ok((scores[0].0, scores[0].0 + target.len()));
 }
 
 fn is_valid_algorithm_name(algorithm: &str) -> bool {
     return ["LEVENSHTEIN", "JARO", "JAROWINKLER", "HAMMING"]
-        .contains(&algorithm.to_uppercase().as_str());
+        .contains(&algorithm);
 }
 
 fn get_scorer(algorithm: &str) -> fn(&str, &Vec<char>, bool, bool, f32) -> PyResult<f32> {
-    return match algorithm.to_uppercase().as_str() {
+    return match algorithm {
         "JARO" => jaro_similarity_target_preprocessed,
         "JAROWINKLER" => jaro_winkler_similarity_target_preprocessed,
         "HAMMING" => hamming_distance_target_preprocessed,
@@ -376,8 +381,8 @@ fn sort_scores<T: Send>(scores: &mut Vec<(T, f32)>, algorithm: &str) {
     if scores.len() > 1000 {
         return par_sort_scores(scores, algorithm);
     }
-    if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
-        || algorithm.to_uppercase().as_str() == "HAMMING"
+    if algorithm == "LEVENSHTEIN"
+        || algorithm == "HAMMING"
     {
         scores.sort_unstable_by(|a, b| a.1.partial_cmp(&b.1).expect("Could not compare scores."));
     } else {
@@ -386,8 +391,8 @@ fn sort_scores<T: Send>(scores: &mut Vec<(T, f32)>, algorithm: &str) {
 }
 
 fn par_sort_scores<T: Send>(scores: &mut Vec<(T, f32)>, algorithm: &str) {
-    if algorithm.to_uppercase().as_str() == "LEVENSHTEIN"
-        || algorithm.to_uppercase().as_str() == "HAMMING"
+    if algorithm == "LEVENSHTEIN"
+        || algorithm == "HAMMING"
     {
         scores
             .par_sort_unstable_by(|a, b| a.1.partial_cmp(&b.1).expect("Could not compare scores."));
